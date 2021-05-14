@@ -18,12 +18,14 @@ class sBasic(commands.Cog):
         options=[
             create_option(
                 name="Number",
-                description="@User",
+                description="Pokedex Number",
                 option_type=4,
                 required=False,
             )
         ])
     async def pokemon(self, ctx: SlashContext, x = random.choice(range(1,899))):
+        if (x == None):
+            x = random.choice(range(1,899))
         if not 0 < int(x) < 899:
             return await ctx.send("`Use a valid Dex Number [1, 898]`")
 
@@ -46,6 +48,14 @@ class sBasic(commands.Cog):
     async def random_roll(self, ctx: SlashContext):
         result = random.choice(range(1,7))
         return await ctx.send(f"`{result}`")
+
+    @cog_ext.cog_slash(name="consume", description="Sends a random Food and Animal Emoji", guild_ids=GUILDS)
+    async def consume(self, ctx: SlashContext):
+        foods = '🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🥨 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🥩 🍗 🍖 🦴 🌭 🍔 🍟 🍕 🥪 🥙 🧆 🌮 🌯 🥗 🥘 🥫 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🦪 🍤 🍙 🍚 🍘 🍥 🥠 🥮 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 🍯 🥛 🍼 🍵 🧃 🥤 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🧉 🍾 🧊 :poop:'
+        food_list = foods.split()
+        animals = '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐓 🦃 🦚 🦜 🦢 🦩 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔 🐉'
+        animals_list = animals.split()
+        return await ctx.send(f'{random.choice(food_list)}{random.choice(animals_list)}')
 
     @cog_ext.cog_slash(name="stats", 
         description="displays mentioned user's Waluigi Bot stats", 

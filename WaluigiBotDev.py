@@ -127,6 +127,18 @@ async def on_message(message):
     await c.process_commands(message)
 
 @c.event
+async def on_slash_command(ctx):
+    with open("data/WahNCounter.json", "r") as INFile:
+                WahDict = load(INFile)
+    WahDict["command_count"] += 1
+    try:
+        WahDict["games"]["commands"][str(ctx.author.id)] += 1
+    except:
+        WahDict["games"]["commands"][str(ctx.author.id)] = 1
+    with open("data/WahNCounter.json", "w") as OUTFile:
+        dump(WahDict, OUTFile, indent="  ")
+
+@c.event
 async def on_command_completion(ctx):
     with open("data/WahNCounter.json", "r") as INFile:
                 WahDict = load(INFile)

@@ -45,7 +45,7 @@ class admin(commands.Cog):
         else:
             try: 
                 DestinationFile = discord.File(infile)
-                await ctx.author.send("`Here's your file:`", file=DestinationFile)
+                await ctx.channel.send("`Here's your file:`", file=DestinationFile)
                 return await ctx.channel.send("`I sent you your file`")
             except Exception as e:
                 return await ctx.channel.send(f"`Error has occurred: {e}`")
