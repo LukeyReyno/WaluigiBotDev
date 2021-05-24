@@ -31,7 +31,7 @@ async def basicExecWithFile(ctx, command):
             outfile.write(stdOutput)
             outfile.close()
             destinationFile = discord.File(f"{outputPath}")
-            await ctx.send(f"`{command.toUpper()} file: `", file=destinationFile)
+            await ctx.send(f"`{command.upper()} file: `", file=destinationFile)
             os.remove(f"{outputPath}")
         else:
             await ctx.send(f"```{stdOutput}```")
@@ -51,7 +51,10 @@ class exec(commands.Cog):
     @commands.command(aliases=["hex"])
     async def xxd(self, ctx):
         await basicExecWithFile(ctx, "xxd")
-        
+
+    @commands.command(aliases=["wf"])
+    async def wordfrequency(self, ctx):
+        await basicExecWithFile(ctx, "wf")
 
 def setup(client):
     client.add_cog(exec(client))
