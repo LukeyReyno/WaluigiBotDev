@@ -106,10 +106,11 @@ cogs = [
     "commands.botw", 
     "commands.admin", 
     "commands.voice",
-    "slashcommands.sBasic",
-    "slashcommands.sBotw",
-    "slashcommands.sReddit"
-    ]#, "commands.anime"]
+    "commands.exec"]#,
+    #"slashcommands.sBasic",
+    #"slashcommands.sBotw",
+    #"slashcommands.sReddit"
+    #]#, "commands.anime"]
 for cog in cogs:
     c.load_extension(cog)
 
@@ -164,11 +165,14 @@ async def on_command_error(ctx, error):
     elif isinstance(error, AttributeError):
         return await ctx.send("`Make sure you're using correct arguments\nType 'wah help' for an example`")
     elif isinstance(error, CommandInvokeError):
-        if not ctx.channel.permissions_for(await ctx.guild.fetch_member(c.user.id)).send_messages:
-            return await ctx.author.send("`Unable to satisfy the command. Make sure I have permission to type in that channel\nYou can also type 'wah help' here for some more information.`")
-        elif not ctx.channel.permissions_for(await ctx.guild.fetch_member(c.user.id)).embed_links:
-            return await ctx.send("`Make sure I can embed links\nUse 'wah help' somewhere else for more info`")
-        return await ctx.send("`Make sure you're using valid arguments\n/are in a valid channel with enough user permissions`")
+        try:
+            if not ctx.channel.permissions_for(await ctx.guild.fetch_member(c.user.id)).send_messages:
+                return await ctx.author.send("`Unable to satisfy the command. Make sure I have permission to type in that channel\nYou can also type 'wah help' here for some more information.`")
+            elif not ctx.channel.permissions_for(await ctx.guild.fetch_member(c.user.id)).embed_links:
+                return await ctx.send("`Make sure I can embed links\nUse 'wah help' somewhere else for more info`")
+            return await ctx.send("`Make sure you're using valid arguments\n/are in a valid channel with enough user permissions`")
+        except:
+            print("Sending Message error")
 
 c.loop.create_task(background_loop())
 c.run(TOKEN)
