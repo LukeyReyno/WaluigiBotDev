@@ -7,6 +7,7 @@ from discord.ext import commands, tasks
 from json import *
 
 WCFILE = "data/wordcount.txt"
+XXDFILE = "data/xxd.txt"
 
 async def getMostRecentFile(ctx):
     messages = await ctx.channel.history(limit=45).flatten()
@@ -34,6 +35,21 @@ class exec(commands.Cog):
             await ctx.send("`WordCount File: `", file=destinationFile)
             os.remove(fname)
             os.remove(f"{WCFILE}")
+        else:
+            await ctx.send("`No recent files were sent in this chat.`")
+
+    @commands.command(aliases=["hex"])
+    async def xxd(self, ctx):
+        messageAttachment = await getMostRecentFile(ctx)
+        if (messageAttachment != None):
+            print(messageAttachment.content_type)
+            fname = f"data/{messageAttachment.filename}"
+            await messageAttachment.save(fname)
+            exitcode = os.system(f"xxd {fname} > {XXDFILE}")
+            destinationFile = discord.File(f"{XXDFILE}")
+            await ctx.send("`XXD file: `", file=destinationFile)
+            os.remove(fname)
+            os.remove(f"{XXDFILE}")
         else:
             await ctx.send("`No recent files were sent in this chat.`")
         
