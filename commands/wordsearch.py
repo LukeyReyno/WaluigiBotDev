@@ -10,7 +10,7 @@ from json import *
 from discord.flags import alias_flag_value
 
 ROWCOUNT = 15
-COLUMNCOUNT = 17
+COLUMNCOUNT = 14
 
 class wordsearch(commands.Cog):
 
@@ -24,8 +24,7 @@ class wordsearch(commands.Cog):
         try:
             guess = await self.client.wait_for('message', check=check, timeout=240)
         except:
-            await ctx.send("`TimeoutError: Game Ended.`")
-            return ""
+            return await ctx.send("`TimeoutError: Game Ended.`")
 
         return guess
     

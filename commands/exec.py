@@ -3,13 +3,12 @@ import os
 import subprocess
 
 from discord.ext import commands, tasks
-from json import *
 
 DISCORD_MESSAGE_CHAR_LIMIT = 2000
-MESSAGEHISTORYLIMIT = 35
+MESSAGE_HISTORY_LIMIT = 35
 
 async def getMostRecentFile(ctx):
-    messages = await ctx.channel.history(limit=MESSAGEHISTORYLIMIT).flatten()
+    messages = await ctx.channel.history(limit=MESSAGE_HISTORY_LIMIT).flatten()
     j = 0
     while (j < len(messages)):
         if (len(messages[j].attachments) > 0):
@@ -24,7 +23,10 @@ async def basicExecWithFile(ctx, command):
 
         fname = f"exec/{messageAttachment.filename}"
         await messageAttachment.save(fname)
-        stdOutput = subprocess.Popen([command, fname], stdout=subprocess.PIPE).communicate()[0]
+        my_env = os.environ.copy()
+        my_env["PATH"] = my_env["PATH"] + ":/waluigibot/data/CExecutables"
+        print(my_env["PATH"])
+        stdOutput = subprocess.Popen([command, fname], stdout=subprocess.PIPE, env=my_env).communicate()[0]
         stdOutput = stdOutput.decode('utf-8')
         if (len(stdOutput) >= DISCORD_MESSAGE_CHAR_LIMIT):
             outfile = open(outputPath, 'w')
@@ -37,7 +39,7 @@ async def basicExecWithFile(ctx, command):
             await ctx.send(f"```{stdOutput}```")
         os.remove(fname)
     else:
-        return await ctx.send(f"`No recent files (Last {MESSAGEHISTORYLIMIT} messages). Send a new one.`")
+        return await ctx.send(f"`No recent files (Last {MESSAGE_HISTORY_LIMIT} messages). Send a new one.`")
 
 class exec(commands.Cog):
 
@@ -55,6 +57,7 @@ class exec(commands.Cog):
     @commands.command(aliases=["wf"])
     async def wordfrequency(self, ctx):
         await basicExecWithFile(ctx, "wf")
+
 
 def setup(client):
     client.add_cog(exec(client))

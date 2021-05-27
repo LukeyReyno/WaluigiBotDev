@@ -7,7 +7,7 @@ import datetime
 from discord.ext import commands, tasks
 from json import *
 from discord.ext.commands.errors import *
-from discord_slash import SlashCommand 
+from discord_slash import SlashCommand
 
 TOKEN = ""
 TOKENFile = open("WahToken.txt", "r")
@@ -106,11 +106,12 @@ cogs = [
     "commands.botw", 
     "commands.admin", 
     "commands.voice",
-    "commands.exec"]#,
-    #"slashcommands.sBasic",
-    #"slashcommands.sBotw",
-    #"slashcommands.sReddit"
-    #]#, "commands.anime"]
+    "commands.exec",
+    "commands.component",
+    "slashcommands.sBasic",
+    "slashcommands.sBotw",
+    "slashcommands.sReddit"
+    ]#, "commands.anime"]
 for cog in cogs:
     c.load_extension(cog)
 
@@ -173,6 +174,8 @@ async def on_command_error(ctx, error):
             return await ctx.send("`Make sure you're using valid arguments\n/are in a valid channel with enough user permissions`")
         except:
             print("Sending Message error")
+    else:
+        return await ctx.send("`ERROR: Looks like something bad happened.`")
 
 c.loop.create_task(background_loop())
 c.run(TOKEN)
