@@ -5,8 +5,9 @@ import math
 import random
 import asyncio
 import copy
-from json import *
 
+from json import *
+from WaluigiBot import WORDS_FILE, GAME_STATS_FILE
 from discord.flags import alias_flag_value
 
 ROWCOUNT = 15
@@ -62,13 +63,13 @@ class wordsearch(commands.Cog):
             await ctx.send(f"`The word was {secret_word}`")
             await ctx.send(f"`Thanks for playing you can request words to be added by using the command:`\n\
                 `wah word (word)`")
-            with open("data/WahNCounter.json", "r") as INFile:
+            with open(GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
             try:
                 WahDict["games"]["wordsearch"][str(ctx.author.id)] += 1
             except:
                 WahDict["games"]["wordsearch"][str(ctx.author.id)] = 1
-            with open("data/WahNCounter.json", "w") as OUTFile:
+            with open(GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
         else:
             await ctx.send("`Sorry, you lost. The word was %s`" % secret_word)
@@ -100,7 +101,7 @@ class wordsearch(commands.Cog):
         return await message.edit(embed=em)
 
 def getWordDict():
-        with open("data/words.json", "r") as INFile:
+        with open(WORDS_FILE, "r") as INFile:
             return load(INFile)
 
 def gameGridSetup(sWord):

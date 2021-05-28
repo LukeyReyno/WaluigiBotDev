@@ -15,6 +15,11 @@ for line in TOKENFile:
     TOKEN = line
 
 GUILDS=[674409360948068372] #TestingServer
+GAME_STATS_FILE="data/WahNCounter.json"
+COMMAND_STATS_FILE="data/commandStats.json"
+ADMIN_FILE="data/admins.json"
+WORDS_FILE="data/words.json"
+SONG_FILE="data/songs.txt"
 
 intents = discord.Intents.default()
 intents.members = True
@@ -25,12 +30,12 @@ slash = SlashCommand(c, sync_commands=True)
 c.remove_command('help')
 
 def updateChannelList():
-    with open("data/WahNCounter.json", "r") as INFile:
+    with open(GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
     return WahDict["chanList"]
 
 def updateSongList():
-    infile = open("data/songs.txt", "r")
+    infile = open(SONG_FILE, "r")
     songs = []
     for song in infile:
         songs += [song]
@@ -57,7 +62,7 @@ async def background_loop():
         if False: #1pm in UTC
             songs = updateSongList()
             spotify_link = random.choice(songs)
-            with open("data/WahNCounter.json", "r") as INFile:
+            with open(GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
             day = WahDict["music_day"]
             for chan_id in dailyChannelList:
@@ -67,7 +72,7 @@ async def background_loop():
                 except:
                     print(f"Error in Routine Message for {chan_id}")
             WahDict["music_day"] += 1
-            with open("data/WahNCounter.json", "w") as OUTFile:
+            with open(GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
             MP_num = random.choice(range(2,11))
             await c.change_presence(activity=discord.Game(name=f"Mario Party {MP_num} | dwah help"))
@@ -89,10 +94,10 @@ async def on_ready():
 
     upDate = datetime.datetime.now().date()
     print(upDate)
-    with open("data/WahNCounter.json", "r") as INFile:
+    with open(GAME_STATS_FILE, "r") as INFile:
         WahDict = load(INFile)
     WahDict["upDate"] = str(upDate)
-    with open("data/WahNCounter.json", "w") as OUTFile:
+    with open(GAME_STATS_FILE, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
 
     print('-------')
@@ -108,6 +113,7 @@ cogs = [
     "commands.voice",
     "commands.exec",
     "commands.component",
+    "commands.stats",
     "slashcommands.sBasic",
     "slashcommands.sBotw",
     "slashcommands.sReddit"
@@ -118,39 +124,48 @@ for cog in cogs:
 @c.event
 async def on_message(message):
     if c.user.mentioned_in(message):
-        with open("data/WahNCounter.json", "r") as INFile:
+        with open(GAME_STATS_FILE, "r") as INFile:
             WahDict = load(INFile)
         try:
             WahDict["mentions"] += 1
         except:
             WahDict["mentions"] = 1
-        with open("data/WahNCounter.json", "w") as OUTFile:
+        with open(GAME_STATS_FILE, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
     await c.process_commands(message)
 
-@c.event
-async def on_slash_command(ctx):
-    with open("data/WahNCounter.json", "r") as INFile:
-                WahDict = load(INFile)
-    WahDict["command_count"] += 1
+def updateCommandData(ctx: commands.context.Context):
+    with open(GAME_STATS_FILE, "r") as INFile:
+        WahDict = load(INFile)
+
+    #For User's command count
     try:
         WahDict["games"]["commands"][str(ctx.author.id)] += 1
     except:
         WahDict["games"]["commands"][str(ctx.author.id)] = 1
-    with open("data/WahNCounter.json", "w") as OUTFile:
+    with open(GAME_STATS_FILE, "w") as OUTFile:
+        dump(WahDict, OUTFile, indent="  ")
+
+
+    with open(COMMAND_STATS_FILE, "r") as INFile:
+        WahDict = load(INFile)
+
+    #For Waluigi Bot's command count
+    WahDict["command_count"] += 1
+    try:
+        WahDict["commands"][f"{ctx.command}"] += 1
+    except:
+        WahDict["commands"][f"{ctx.command}"] = 1
+    with open(COMMAND_STATS_FILE, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
 
 @c.event
+async def on_slash_command(ctx):
+    updateCommandData(ctx)
+
+@c.event
 async def on_command_completion(ctx):
-    with open("data/WahNCounter.json", "r") as INFile:
-                WahDict = load(INFile)
-    WahDict["command_count"] += 1
-    try:
-        WahDict["games"]["commands"][str(ctx.author.id)] += 1
-    except:
-        WahDict["games"]["commands"][str(ctx.author.id)] = 1
-    with open("data/WahNCounter.json", "w") as OUTFile:
-        dump(WahDict, OUTFile, indent="  ")
+    updateCommandData(ctx)
 
 @c.event
 async def on_command_error(ctx, error):

@@ -1,6 +1,6 @@
 import discord
 import random
-import WaluigiBotDev
+import WaluigiBot
 
 from discord.ext import commands, tasks
 from json import *
@@ -43,10 +43,10 @@ class basic(commands.Cog):
 
     @commands.command()
     async def song(self, ctx):
-        if len(WaluigiBotDev.songs_command) == 0:
+        if len(WaluigiBot.songs_command) == 0:
             return await ctx.send("`Waluigi Bot has recently been updated wait until ~2PM Pacific to use this command`")
         else:
-            return await ctx.send(random.choice(WaluigiBotDev.songs_command))
+            return await ctx.send(random.choice(WaluigiBot.songs_command))
 
     @commands.command()
     async def joined(self, ctx, *, member: discord.Member):
@@ -197,12 +197,12 @@ class basic(commands.Cog):
         
         c = ctx.channel.id
         
-        if c not in WaluigiBotDev.dailyChannelList:
-            with open("data/WahNCounter.json", "r") as INFile:
+        if c not in WaluigiBot.dailyChannelList:
+            with open(WaluigiBot.GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
             WahDict["chanList"] += [c]
-            WaluigiBotDev.dailyChannelList = WahDict["chanList"]
-            with open("data/WahNCounter.json", "w") as OUTFile:
+            WaluigiBot.dailyChannelList = WahDict["chanList"]
+            with open(WaluigiBot.GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
             return await ctx.send("`This Channel Will Now Receive Routine Messages`")
 
@@ -214,11 +214,11 @@ class basic(commands.Cog):
         except:
             return await ctx.send("`TimeoutError: No changes have been made.`")
         if response.content.lower() == "yes":
-            with open("data/WahNCounter.json", "r") as INFile:
+            with open(WaluigiBot.GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
             WahDict["chanList"].remove(c)
-            WaluigiBotDev.dailyChannelList = WahDict["chanList"]
-            with open("data/WahNCounter.json", "w") as OUTFile:
+            WaluigiBot.dailyChannelList = WahDict["chanList"]
+            with open(WaluigiBot.GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
             return await ctx.send("`This Channel Will No Longer Receive Routine Messages`")
         return await ctx.send("`No changes have been made.`")
@@ -270,57 +270,12 @@ class basic(commands.Cog):
         return await ctx.send(embed=status_embed)
 
     @commands.command()
-    async def stats(self, ctx):
-        if len(ctx.message.mentions) == 0:
-            await ctx.send("`You must @mention someone`")
-            return await ctx.send("Example: `wah stats @Waluigi Bot`")
-
-        user = ctx.message.mentions[0]
-
-        stats_embed = discord.Embed()
-        stats_embed.title = f"Waluigi Bot Stats: {user.name}"
-        stats_embed.color = 0x7027C3
-        stats_embed.set_thumbnail(url=user.avatar_url)
-        stats_embed.set_footer(text="Wah", icon_url="https://ih1.redbubble.net/image.15430162.9094/sticker,375x360.u2.png")
-
-        descript_string = ""
-        with open("data/WahNCounter.json", "r") as INFile:
-            WahDict = load(INFile)
-
-        if user.id == self.client.user.id:
-            cCount = WahDict["command_count"]
-            mCount = WahDict["mentions"]
-            updateDate = WahDict["upDate"]
-            descript_string += f"`COMMAND COUNT: {cCount}`\n"
-            descript_string += f"`GUILD COUNT: {len(self.client.guilds)}`\n"
-            descript_string += f"`USER COUNT: {len(self.client.users)}`\n"
-            descript_string += f"`MENTION COUNT: {mCount}`\n"
-            descript_string += f"`UPDATED: {updateDate}`\n"
-            stats_embed.description = descript_string
-        else:
-            games = WahDict["games"]
-            rank_score = 0
-            for game in games:
-                try:
-                    game_data = games[game][str(user.id)]
-                except:
-                    game_data = 0
-                descript_string += f"`{game.upper()}: {game_data}`\n"
-                if game == "commands":
-                    rank_score += int(game_data) // 30
-                else:
-                    rank_score += int(game_data)
-            stats_embed.description = descript_string
-
-            rank = rank_score // 10
-            animals = '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐓 🦃 🦚 🦜 🦢 🦩 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔 🐉'
-            animals_list = animals.split()
-            stats_embed.add_field(name=f"Waluigi Bot Rank: {rank}   {animals_list[rank%len(animals_list)]}", value="`Keep using Waluigi Bot to increase Rank`")
-        await ctx.send(embed=stats_embed)
-
-    @commands.command()
     async def id(self, ctx):
         await ctx.send(self.client.user.id)
+
+    @commands.command()
+    async def invite(self, ctx):
+        return await ctx.send("https://discord.com/oauth2/authorize?client_id=223959196238872577&scope=bot%20applications.commands&permissions=2147609664")
 
 def setup(client):
     client.add_cog(basic(client))

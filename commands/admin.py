@@ -4,6 +4,7 @@ import datetime
 import shutil
 
 from json import *
+from WaluigiBot import ADMIN_FILE, WORDS_FILE
 
 class admin(commands.Cog):
     def __init__(self, client):
@@ -14,7 +15,7 @@ class admin(commands.Cog):
         self.initialize_admins()
     
     def initialize_admins(self):
-        with open("data/admins.json", "r") as INFile:
+        with open(ADMIN_FILE, "r") as INFile:
             adminDict = load(INFile)
         self.admins = adminDict["admins"]
         self.adminChannelID = adminDict["adminChannelID"]
@@ -91,28 +92,6 @@ class admin(commands.Cog):
             destinationFile = discord.File("guilds.txt")
             await ctx.send("`Guild List File: `", file=destinationFile)
 
-    """@commands.command()
-    async def randomReact(self, ctx):
-        if await self.adminCheck(ctx):
-            pass
-        else:
-            failList = ""
-            failure = False
-            for g in self.client.guilds:
-                    try:
-                        textChannel = random.choice(g.text_channels)
-                        messages = await textChannel.history(limit=5).flatten()                   
-                        await random.choice(messages).add_reaction(random.choice(["🤓", "🤡", "👽", "🤔", "🤥", "😳"]))
-                    except:
-                        failure = True
-                        failList += f"` - {g.name}`\n"
-                        print("WaluigiBot React Error")
-                        pass
-            if failure:
-                await ctx.send("`I have failed to react in a server - ><_><`")
-                await ctx.send(failList)
-            await ctx.send("`I have reacted - 0w0`")"""
-
     @commands.command()
     async def word(self, ctx, w, flag : str=None):
         if ctx.author.id not in self.admins:
@@ -120,7 +99,7 @@ class admin(commands.Cog):
             await adminChannel.send(f'`The word "{w}" has been recommended for bot use.`\n`Admins can approve the word by using the wah word (word) command.`')
             return await ctx.send(f"`Request for word: {w} has been sent\nVisit the Support Server to see word list.`")
         else:
-            with open("data/words.json", "r") as INFile:
+            with open(WORDS_FILE, "r") as INFile:
                 wordDict = load(INFile)
             
             if w.isalpha() == False or len(w) < 4:
@@ -129,7 +108,7 @@ class admin(commands.Cog):
                 if w in wordDict[key]:
                     if flag == "-d" or "remove":
                         wordDict[key].remove(w)
-                        with open("data/words.json", "w") as OUTFile:
+                        with open(WORDS_FILE, "w") as OUTFile:
                             dump(wordDict, OUTFile, indent="  ")
                         return await ctx.send(f"`Deleted word: {w}`")
 
@@ -148,7 +127,7 @@ class admin(commands.Cog):
             except:
                 await ctx.send("`Creating New Category`")
 
-            with open("data/words.json", "w") as OUTFile:
+            with open(WORDS_FILE, "w") as OUTFile:
                 dump(wordDict, OUTFile, indent="  ")
             wordChannel = self.client.get_channel(792539728993320989)
             await wordChannel.send(f"`New Word Added: {w} - {hint.content}`")

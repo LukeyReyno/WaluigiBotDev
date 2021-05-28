@@ -1,6 +1,7 @@
 import discord
 import os
 import subprocess
+from discord.errors import HTTPException
 
 from discord.ext import commands, tasks
 
@@ -25,7 +26,6 @@ async def basicExecWithFile(ctx, command):
         await messageAttachment.save(fname)
         my_env = os.environ.copy()
         my_env["PATH"] = my_env["PATH"] + ":/waluigibot/data/CExecutables"
-        print(my_env["PATH"])
         stdOutput = subprocess.Popen([command, fname], stdout=subprocess.PIPE, env=my_env).communicate()[0]
         stdOutput = stdOutput.decode('utf-8')
         if (len(stdOutput) >= DISCORD_MESSAGE_CHAR_LIMIT):
@@ -33,7 +33,14 @@ async def basicExecWithFile(ctx, command):
             outfile.write(stdOutput)
             outfile.close()
             destinationFile = discord.File(f"{outputPath}")
-            await ctx.send(f"`{command.upper()} file: `", file=destinationFile)
+            try:
+                await ctx.send(f"`{command.upper()} file: `", file=destinationFile)
+            except HTTPException as e: #Most likely, file is too large
+                if (e.code == 40005):
+                    await ctx.send(f"`{command.upper()} tried sending a file that's too big for Discord`")
+                else:
+                    print(f"{command.upper()}: {e}")
+                    await ctx.send(f"`{command.upper()} caused a file error to occurr`")
             os.remove(f"{outputPath}")
         else:
             await ctx.send(f"```{stdOutput}```")
@@ -57,7 +64,6 @@ class exec(commands.Cog):
     @commands.command(aliases=["wf"])
     async def wordfrequency(self, ctx):
         await basicExecWithFile(ctx, "wf")
-
 
 def setup(client):
     client.add_cog(exec(client))
