@@ -44,6 +44,7 @@ class reddit(commands.Cog):
         try:
             if sub[:2] == "r/": #command works with r/subreddit parameters
                sub = sub[2:] 
+            subreddit: asyncpraw.reddit.Subreddit = await redditClient.subreddit(sub.lower(), fetch=True)
             subreddit = await redditClient.subreddit(sub.lower(), fetch=True)
             if sortType == "random":
                 submission = await subreddit.random()
@@ -64,7 +65,8 @@ class reddit(commands.Cog):
                 async for submission in submissions:
                     if not submission.stickied:
                         break
-
+            if submission == None:
+                return await ctx.send("`No post found`")
             if submission.over_18 and ctx.channel.is_nsfw() == False:
                 await ctx.send("`This post has been marked as NSFW respond with 'yes' within 60 seconds to view`")
                 response = await self.getResponse(ctx)
@@ -113,8 +115,7 @@ class reddit(commands.Cog):
             return await ctx.send(embed=reddit_embed)
         except Exception as e:
             print(e)
-            await ctx.send(f"`Error: {e}`")
-            return await ctx.send(f"`No post found.\nTry a different subreddit and make sure the bot has permissions to embed links`")
+            return await ctx.send(f"`Error: {e}`")
 
     async def getResponse(self, ctx): #method for getting guesses and deleting author message
         def check(m):

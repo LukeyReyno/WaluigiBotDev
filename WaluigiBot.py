@@ -8,6 +8,7 @@ from discord.ext import commands, tasks
 from json import *
 from discord.ext.commands.errors import *
 from discord_slash import SlashCommand
+from discord_slash.context import SlashContext
 
 TOKEN = ""
 TOKENFile = open("WahToken.txt", "r")
@@ -167,6 +168,10 @@ async def on_slash_command(ctx):
 @c.event
 async def on_command_completion(ctx):
     updateCommandData(ctx)
+
+@c.event
+async def on_slash_command_error(ctx: SlashContext, ex):
+    print(f"Slash: {ctx.command} - {ex}")
 
 @c.event
 async def on_command_error(ctx, error):

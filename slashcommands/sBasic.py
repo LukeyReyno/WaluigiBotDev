@@ -23,7 +23,7 @@ class sBasic(commands.Cog):
                 required=False,
             )
         ])
-    async def pokemon(self, ctx: SlashContext, x: int):
+    async def pokemon(self, ctx: SlashContext, x = random.choice(range(1,899))):
         if (x == None):
             x = random.choice(range(1,899))
         if not 0 < int(x) < 899:

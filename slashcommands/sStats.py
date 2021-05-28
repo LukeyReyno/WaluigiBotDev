@@ -8,7 +8,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 from json import *
 
 class sStats(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: discord.Client):
         self.client = client
 
     @cog_ext.cog_slash(name="stats", 
@@ -23,6 +23,8 @@ class sStats(commands.Cog):
             )
         ])
     async def stats(self, ctx: SlashContext, user: discord.User):
+        if (type(user) == str):
+            user = self.client.get_user(int(user))
         if user.id == self.client.user.id:
             stats_embed = waluigiBotStats(user, len(self.client.guilds), len(self.client.users))
         else:
@@ -77,7 +79,7 @@ def waluigiBotStats(user, numGuilds, numUsers):
 
     return stats_embed
 
-def userStats(user):
+def userStats(user: discord.User):
     descript_string = ""
     stats_embed = getBaseEmbed(user)
 
