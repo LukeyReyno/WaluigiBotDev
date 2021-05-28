@@ -22,7 +22,7 @@ class sStats(commands.Cog):
                 required=True,
             )
         ])
-    async def stats(self, ctx: SlashContext, user:str):
+    async def stats(self, ctx: SlashContext, user: discord.User):
         if user.id == self.client.user.id:
             stats_embed = waluigiBotStats(user, len(self.client.guilds), len(self.client.users))
         else:
