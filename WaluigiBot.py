@@ -116,6 +116,7 @@ cogs = [
     "commands.stats",
     "slashcommands.sBasic",
     "slashcommands.sBotw",
+    "slashcommands.sStats",
     "slashcommands.sReddit"
     ]#, "commands.anime"]
 for cog in cogs:
