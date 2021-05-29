@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
-from WaluigiBot import GUILDS
+from functions.constants import GUILDS
 from json import *
 
 class sBasic(commands.Cog):

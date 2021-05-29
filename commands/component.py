@@ -3,6 +3,7 @@ import asyncio
 
 from discord.ext import commands
 from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
+import discord_components
 
 class component(commands.Cog):
     def __init__(self, client):
@@ -16,13 +17,15 @@ class component(commands.Cog):
             channel=ctx.channel, 
             content="Waluigi Moment", 
             components=[
-                Button(style=ButtonStyle.blue, label="🤡"),
-                Button(style=ButtonStyle.red, label="🤥"),
-                Button(style=ButtonStyle.URL, label="url", url="https://lukeyreyno.github.io/lucas-website/index.html"),
+                Button(style=ButtonStyle.blue, label="Blue Button", emoji=discord.PartialEmoji(name="🤡")),
+                Button(style=ButtonStyle.red, label="Red Button", emoji=discord.PartialEmoji(name="🤥")),
+                Button(style=ButtonStyle.gray, label="Gray Button", emoji=discord.PartialEmoji(name="😂")),
+                Button(style=ButtonStyle.green, label="Green Button", emoji=discord.PartialEmoji(name="🐬")),
+                Button(style=ButtonStyle.blue, label="Quit", emoji=discord.PartialEmoji(name="🛑"))
             ],
         )
 
-        res = await self.dComp.wait_for_interact("button_click")
+        res: discord_components.Context = await self.dComp.wait_for_interact("button_click")
         if res.channel == ctx.channel:
             await res.respond(
                 type=InteractionType.ChannelMessageWithSource,

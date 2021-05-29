@@ -9,18 +9,12 @@ from json import *
 from discord.ext.commands.errors import *
 from discord_slash import SlashCommand
 from discord_slash.context import SlashContext
+from functions.dailyRequests import dailySongMessage, dailyStatMessage
+from functions.constants import GAME_STATS_FILE, COMMAND_STATS_FILE
 
-TOKEN = ""
 TOKENFile = open("WahToken.txt", "r")
 for line in TOKENFile:
     TOKEN = line
-
-GUILDS=[674409360948068372] #TestingServer
-GAME_STATS_FILE="data/WahNCounter.json"
-COMMAND_STATS_FILE="data/commandStats.json"
-ADMIN_FILE="data/admins.json"
-WORDS_FILE="data/words.json"
-SONG_FILE="data/songs.txt"
 
 intents = discord.Intents.default()
 intents.members = True
@@ -30,61 +24,15 @@ slash = SlashCommand(c, sync_commands=True)
 
 c.remove_command('help')
 
-def updateChannelList():
-    with open(GAME_STATS_FILE, "r") as INFile:
-                WahDict = load(INFile)
-    return WahDict["chanList"]
-
-def updateSongList():
-    infile = open(SONG_FILE, "r")
-    songs = []
-    for song in infile:
-        songs += [song]
-    return songs
-
-dailyChannelList = updateChannelList()
-songs_command = updateSongList()
-
 async def background_loop():
     await c.wait_until_ready()
     while not c.is_closed():
-        dailyChannelList = updateChannelList()
-        for chan_id in dailyChannelList:
-            chan = c.get_channel(chan_id)
-            foods = '🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🥨 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🥩 🍗 🍖 🦴 🌭 🍔 🍟 🍕 🥪 🥙 🧆 🌮 🌯 🥗 🥘 🥫 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🦪 🍤 🍙 🍚 🍘 🍥 🥠 🥮 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 🍯 🥛 🍼 🍵 🧃 🥤 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🧉 🍾 🧊 :poop:'
-            food_list = foods.split()
-            animals = '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐓 🦃 🦚 🦜 🦢 🦩 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔 🐉'
-            animals_list = animals.split()
-            try:
-                await chan.send(f"{random.choice(food_list)}{random.choice(animals_list)}")
-            except:
-                print(f"Error in Routine Message for {chan_id}")
         lt = time.localtime(time.time())
-        if False: #1pm in UTC
-            songs = updateSongList()
-            spotify_link = random.choice(songs)
-            with open(GAME_STATS_FILE, "r") as INFile:
-                WahDict = load(INFile)
-            day = WahDict["music_day"]
-            for chan_id in dailyChannelList:
-                mus_channel = c.get_channel(chan_id)
-                try:
-                    await mus_channel.send("`Waluigi's Daily `:calendar:` Music `:musical_note:` Recommendation `:point_down:` Day:` " + str(day) + "\n" + str(spotify_link))
-                except:
-                    print(f"Error in Routine Message for {chan_id}")
-            WahDict["music_day"] += 1
-            with open(GAME_STATS_FILE, "w") as OUTFile:
-                dump(WahDict, OUTFile, indent="  ")
+        if False:
+            await dailySongMessage(c)
+            await dailyStatMessage(c)
             MP_num = random.choice(range(2,11))
             await c.change_presence(activity=discord.Game(name=f"Mario Party {MP_num} | dwah help"))
-            for g in c.guilds:
-                try: #check for empty channels or missing permissions
-                    textChannel = random.choice(g.text_channels)
-                    messages = await textChannel.history(limit=5).flatten()
-                    await random.choice(messages).add_reaction(random.choice(["🤓", "🤡", "👽", "🤔", "🤥", "😳"]))
-                except:
-                    print("Failed to React in: " + f"{g.name}")
-                    pass
         await asyncio.sleep(3600)
 
 @c.event

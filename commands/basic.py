@@ -1,8 +1,9 @@
 import discord
 import random
-import WaluigiBot
 
 from discord.ext import commands, tasks
+from functions.dailyRequests import updateSongList, updateChannelList
+from functions.constants import GAME_STATS_FILE
 from json import *
 
 class basic(commands.Cog):
@@ -43,10 +44,7 @@ class basic(commands.Cog):
 
     @commands.command()
     async def song(self, ctx):
-        if len(WaluigiBot.songs_command) == 0:
-            return await ctx.send("`Waluigi Bot has recently been updated wait until ~2PM Pacific to use this command`")
-        else:
-            return await ctx.send(random.choice(WaluigiBot.songs_command))
+        return await ctx.send(random.choice(updateSongList()))
 
     @commands.command()
     async def joined(self, ctx, *, member: discord.Member):
@@ -196,13 +194,16 @@ class basic(commands.Cog):
             return await ctx.author.send("`I cannot send messages in that text channel`")
         
         c = ctx.channel.id
+
+        dailyType = "songChanList"
+        dailyChannelList = updateChannelList(dailyType)
         
-        if c not in WaluigiBot.dailyChannelList:
-            with open(WaluigiBot.GAME_STATS_FILE, "r") as INFile:
+        if c not in dailyChannelList:
+            with open(GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
-            WahDict["chanList"] += [c]
-            WaluigiBot.dailyChannelList = WahDict["chanList"]
-            with open(WaluigiBot.GAME_STATS_FILE, "w") as OUTFile:
+            WahDict[dailyType] += [c]
+            dailyChannelList = WahDict[dailyType]
+            with open(GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
             return await ctx.send("`This Channel Will Now Receive Routine Messages`")
 
@@ -214,11 +215,11 @@ class basic(commands.Cog):
         except:
             return await ctx.send("`TimeoutError: No changes have been made.`")
         if response.content.lower() == "yes":
-            with open(WaluigiBot.GAME_STATS_FILE, "r") as INFile:
+            with open(GAME_STATS_FILE, "r") as INFile:
                 WahDict = load(INFile)
-            WahDict["chanList"].remove(c)
-            WaluigiBot.dailyChannelList = WahDict["chanList"]
-            with open(WaluigiBot.GAME_STATS_FILE, "w") as OUTFile:
+            WahDict[dailyType].remove(c)
+            dailyChannelList = WahDict[dailyType]
+            with open(GAME_STATS_FILE, "w") as OUTFile:
                 dump(WahDict, OUTFile, indent="  ")
             return await ctx.send("`This Channel Will No Longer Receive Routine Messages`")
         return await ctx.send("`No changes have been made.`")

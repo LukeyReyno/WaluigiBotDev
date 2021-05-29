@@ -7,7 +7,7 @@ import asyncio
 import copy
 
 from json import *
-from WaluigiBot import WORDS_FILE, GAME_STATS_FILE
+from functions.constants import WORDS_FILE, GAME_STATS_FILE
 from discord.flags import alias_flag_value
 
 ROWCOUNT = 15

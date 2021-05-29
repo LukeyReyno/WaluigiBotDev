@@ -4,7 +4,7 @@ import datetime
 import shutil
 
 from json import *
-from WaluigiBot import ADMIN_FILE, WORDS_FILE
+from functions.constants import WORDS_FILE, ADMIN_FILE
 
 class admin(commands.Cog):
     def __init__(self, client):

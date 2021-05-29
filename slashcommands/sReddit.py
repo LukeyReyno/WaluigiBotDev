@@ -6,7 +6,7 @@ import json
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
-from WaluigiBot import GUILDS
+from functions.constants import GUILDS
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
