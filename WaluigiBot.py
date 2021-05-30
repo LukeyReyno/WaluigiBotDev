@@ -43,10 +43,10 @@ async def on_ready():
 
     upDate = datetime.datetime.now().date()
     print(upDate)
-    with open(GAME_STATS_FILE, "r") as INFile:
+    with open(COMMAND_STATS_FILE, "r") as INFile:
         WahDict = load(INFile)
     WahDict["upDate"] = str(upDate)
-    with open(GAME_STATS_FILE, "w") as OUTFile:
+    with open(COMMAND_STATS_FILE, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
 
     print('-------')
@@ -74,13 +74,13 @@ for cog in cogs:
 @c.event
 async def on_message(message):
     if c.user.mentioned_in(message):
-        with open(GAME_STATS_FILE, "r") as INFile:
+        with open(COMMAND_STATS_FILE, "r") as INFile:
             WahDict = load(INFile)
         try:
             WahDict["mentions"] += 1
         except:
             WahDict["mentions"] = 1
-        with open(GAME_STATS_FILE, "w") as OUTFile:
+        with open(COMMAND_STATS_FILE, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
     await c.process_commands(message)
 

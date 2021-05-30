@@ -1,7 +1,7 @@
 import discord
 
 from json import *
-from functions.constants import GAME_STATS_FILE
+from functions.constants import GAME_STATS_FILE, COMMAND_STATS_FILE
 
 def getBaseEmbed(user: discord.User):
     stats_embed = discord.Embed()
@@ -15,37 +15,39 @@ def getBaseEmbed(user: discord.User):
 def waluigiBotStats(user: discord.User, numGuilds, numUsers):
     descript_string = ""
     stats_embed = getBaseEmbed(user)
-
-    with open(GAME_STATS_FILE, "r") as INFile:
+    
+    with open(COMMAND_STATS_FILE, "r") as INFile:
         WahDict = load(INFile)
 
     cCount = WahDict["command_count"]
     mCount = WahDict["mentions"]
     updateDate = WahDict["upDate"]
-    descript_string += f"`COMMAND COUNT: {cCount}`\n"
-    descript_string += f"`GUILD COUNT: {numGuilds}`\n"
-    descript_string += f"`USER COUNT: {numUsers}`\n"
-    descript_string += f"`MENTION COUNT: {mCount}`\n"
-    descript_string += f"`UPDATED: {updateDate}`\n\n"
 
-    with open("data/commandStats.json", "r") as INFile:
-        WahDict = load(INFile)
+    descript_string += "```"
+    descript_string += f"COMMAND COUNT: {cCount:10d}\n"
+    descript_string += f"GUILD COUNT:   {numGuilds:10d}\n"
+    descript_string += f"USER COUNT:    {numUsers:10d}\n"
+    descript_string += f"MENTION COUNT: {mCount:10d}\n"
+    descript_string += f"UPDATED:       {updateDate:10s}\n\n"
+    descript_string += "```"
 
     tupleSortValues = sorted(WahDict["commands"].items(), key=lambda item: item[1])
     tupleSortValues.reverse()
     commandSorted = {key: value for key, value in tupleSortValues}
     WahDict["commands"] = commandSorted
-
-    descript_string += "`TOP TEN USED COMMANDS: `\n"
+    
+    descript_string += "```"
+    descript_string += "TOP TEN USED COMMANDS:  \n"
 
     i = 1
     for comm in commandSorted:
-        descript_string += f"`{i}. {comm}: {commandSorted[comm]}`\n"
+        descript_string += f"{i:2d}. {comm:12s} {commandSorted[comm]:7d}\n"
         i += 1
         if i > 10:
             break
-    with open("data/commandStats.json", "w") as OUTFile:
+    with open(COMMAND_STATS_FILE, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
+    descript_string += "```"
 
     stats_embed.description = descript_string
 
@@ -60,16 +62,18 @@ def userStats(user: discord.User):
 
     games = WahDict["games"]
     rank_score = 0
+    descript_string += "```"
     for game in games:
         try:
             game_data = games[game][str(user.id)]
         except:
             game_data = 0
-        descript_string += f"`{game.upper()}: {game_data}`\n"
+        descript_string += f"{game.upper():14s} {game_data:8d}\n"
         if game == "commands":
             rank_score += int(game_data) // 30
         else:
             rank_score += int(game_data)
+    descript_string += "```"
     rank = rank_score // 10
     animals = '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐓 🦃 🦚 🦜 🦢 🦩 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔 🐉'
     animals_list = animals.split()
