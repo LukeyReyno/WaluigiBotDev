@@ -41,7 +41,7 @@ def waluigiBotStats(user: discord.User, numGuilds, numUsers):
 
     i = 1
     for comm in commandSorted:
-        descript_string += f"{i:2d}. {comm:12s} {commandSorted[comm]:7d}\n"
+        descript_string += f"{i:2d}. {comm:12s}  {commandSorted[comm]:7d}\n"
         i += 1
         if i > 10:
             break
