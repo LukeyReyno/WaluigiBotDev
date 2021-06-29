@@ -30,8 +30,6 @@ class anime(commands.Cog):
         authorization_url = "https://myanimelist.net/v1/oauth2/token"
 
         r = requests.post(authorization_url, data=params)
-        #print(r)
-        #print(r.json())
 
         if r.ok:
                 with open("data/token.json", 'w') as tokenFile:
@@ -45,7 +43,7 @@ class anime(commands.Cog):
     @commands.command(aliases=["as", "animesearch", "asearch"])
     async def anime_search(self, ctx, *, query):
         response = requests.get(f'https://api.myanimelist.net/v2/anime?q={query}&limit=4', headers={"Authorization":f"Bearer {self.token}"})
-        #print(response)
+
         results = response.json()
         resultTitle = results["data"][0]["node"]["title"]
 
@@ -53,7 +51,7 @@ class anime(commands.Cog):
         anime_embed.title = f'Anime Search First Result: {resultTitle}'
         url = f'https://myanimelist.net/anime/{results["data"][0]["node"]["id"]}/{resultTitle}?cat=anime'
         url = url.replace(' ', '_')
-        #print(url)
+
         anime_embed.url = url
         anime_embed.set_image(url=f'{results["data"][0]["node"]["main_picture"]["medium"]}')
         anime_embed.color = 0x7027C3
