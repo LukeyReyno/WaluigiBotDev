@@ -12,29 +12,6 @@ class sBasic(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(name="pokemon", 
-        description="displays an image of a pokemon", 
-        guild_ids=GUILDS, 
-        options=[
-            create_option(
-                name="number",
-                description="Pokedex Number",
-                option_type=4,
-                required=False,
-            )
-        ])
-    async def pokemon(self, ctx: SlashContext, x = random.choice(range(1,899))):
-        if (x == None):
-            x = random.choice(range(1,899))
-        if not 0 < int(x) < 899:
-            return await ctx.send("`Use a valid Dex Number [1, 898]`")
-
-        if int(x) < 10:
-            x = "0"+"0"+str(int(x))
-        elif int(x) < 100:
-            x = "0"+str(int(x))
-        await ctx.send("`Number: %s`\nhttps://assets.pokemon.com/assets/cms2/img/pokedex/full/%s.png" % (x, x))
-
     @cog_ext.cog_slash(name="random")
     async def random(self, ctx: SlashContext):
         await ctx.send("This should never ever send.")

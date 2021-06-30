@@ -57,7 +57,8 @@ cogs = [
     "commands.hangman", 
     "commands.wordsearch", 
     "commands.reddit", 
-    "commands.botw", 
+    "commands.botw",
+    "commands.pokemon", 
     "commands.admin", 
     "commands.voice",
     "commands.exec",
@@ -65,6 +66,7 @@ cogs = [
     "commands.stats",
     "slashcommands.sBasic",
     "slashcommands.sBotw",
+    "slashcommands.sPokemon",
     "slashcommands.sStats",
     "slashcommands.sReddit"
     ]#, "commands.anime"]

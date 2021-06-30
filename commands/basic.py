@@ -54,19 +54,6 @@ class basic(commands.Cog):
         await ctx.send('`{0} joined on {0.joined_at}`'.format(member))
 
     @commands.command()
-    async def pokemon(self, ctx, x = str(random.choice(range(1,899)))):
-        if not x.isdigit():
-            return await ctx.send("`Use a Pokémon's Dex Number instead`")
-        elif not 0 < int(x) < 899:
-            return await ctx.send("`Use a valid Dex Number [1, 898]`")
-
-        if int(x) < 10:
-            x = "0"+"0"+str(int(x))
-        elif int(x) < 100:
-            x = "0"+str(int(x))
-        await ctx.send("`Number: %s`\nhttps://assets.pokemon.com/assets/cms2/img/pokedex/full/%s.png" % (x, x))
-
-    @commands.command()
     async def consume(self, ctx):
         foods = '🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🥨 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🥩 🍗 🍖 🦴 🌭 🍔 🍟 🍕 🥪 🥙 🧆 🌮 🌯 🥗 🥘 🥫 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🦪 🍤 🍙 🍚 🍘 🍥 🥠 🥮 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 🍯 🥛 🍼 🍵 🧃 🥤 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🧉 🍾 🧊 :poop:'
         food_list = foods.split()
