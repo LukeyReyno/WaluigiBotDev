@@ -4,6 +4,9 @@ import pokebase
 from json import *
 from functions.constants import POKEMON_STATS_FILE
 
+MIN_POKE_ID = 1
+MAX_POKE_ID = 898
+
 def getBaseEmbed():
     stats_embed = discord.Embed()
     stats_embed.color = 0x7027C3
@@ -11,28 +14,43 @@ def getBaseEmbed():
 
     return stats_embed
 
+def getOfficialArt(pokemonID : int):
+    if pokemonID < 10:
+        numStr = "0"+"0"+str(pokemonID)
+    elif pokemonID < 100:
+        numStr = "0"+str(pokemonID)
+    else:
+        numStr = str(pokemonID)
+
+    return "https://assets.pokemon.com/assets/cms2/img/pokedex/full/%s.png" % numStr
+
+def getArt(image_type : int, pokemonID : int, pokemonObject):
+    artList = [
+        getOfficialArt(pokemonID),
+        pokemonObject.sprites.front_default,
+        pokemonObject.sprites.back_default,
+        pokemonObject.sprites.front_shiny,
+        pokemonObject.sprites.back_shiny,
+        ]
+    return artList[image_type]
+
 def mainPokemonCommand(name_num : str):
     descript_string = ""
     pokemon_embed = getBaseEmbed()
 
     if (name_num.isdigit()):
+        pokeID = int(name_num)
+        if (pokeID < MIN_POKE_ID or pokeID > MAX_POKE_ID):
+            return None
         pokeObject = pokebase.pokemon(int(name_num))
     else:
         pokeObject = pokebase.pokemon(name_num.lower())
+        try:
+            pokeID = pokeObject.id
+        except:
+            return None
 
-    try:
-        pokeID = pokeObject.id
-    except:
-        return None
-
-    if pokeID < 10:
-        name_num = "0"+"0"+str(pokeID)
-    elif pokeID < 100:
-        name_num = "0"+str(pokeID)
-    else:
-        name_num = str(pokeID)
-
-    pokemon_embed.set_image(url="https://assets.pokemon.com/assets/cms2/img/pokedex/full/%s.png" % name_num)
+    pokemon_embed.set_image(url=getOfficialArt(pokeID))
     pokemon_embed.set_thumbnail(url=pokeObject.sprites.front_default)
     pokemon_embed.title = f"Pokémon: {pokeObject.name.upper()}\nNumber: {name_num}"
     
@@ -65,6 +83,21 @@ def mainPokemonCommand(name_num : str):
         dump(pokeDict, OUTFile, indent="  ")
 
     return pokemon_embed
+
+def pokemonImageCommand(name_num : str, image_type : int):
+    if (name_num.isdigit()):
+        pokeID = int(name_num)
+        if (pokeID < MIN_POKE_ID or pokeID > MAX_POKE_ID):
+            return None
+        pokeObject = pokebase.pokemon(int(name_num))
+    else:
+        pokeObject = pokebase.pokemon(name_num.lower())
+        try:
+            pokeID = pokeObject.id
+        except:
+            return None
+
+    return getArt(image_type, pokeID, pokeObject)
 
 def pokemonStats():
     descript_string = ""
