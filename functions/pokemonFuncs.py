@@ -8,11 +8,11 @@ MIN_POKE_ID = 1
 MAX_POKE_ID = 898
 
 def getBaseEmbed():
-    stats_embed = discord.Embed()
-    stats_embed.color = 0x7027C3
-    stats_embed.set_footer(text="Wah", icon_url="https://ih1.redbubble.net/image.15430162.9094/sticker,375x360.u2.png")
+    embed = discord.Embed()
+    embed.color = 0x7027C3
+    embed.set_footer(text="Wah", icon_url="https://ih1.redbubble.net/image.15430162.9094/sticker,375x360.u2.png")
 
-    return stats_embed
+    return embed
 
 def getOfficialArt(pokemonID : int):
     if pokemonID < 10:
@@ -34,10 +34,17 @@ def getArt(image_type : int, pokemonID : int, pokemonObject):
         ]
     return artList[image_type]
 
-def mainPokemonCommand(name_num : str):
-    descript_string = ""
-    pokemon_embed = getBaseEmbed()
+def incrementPokemonJson(pokeObject):
+    with open(POKEMON_STATS_FILE, "r") as INFile:
+        pokeDict = load(INFile)
+    try:
+        pokeDict[pokeObject.name] += 1
+    except:
+        pokeDict[pokeObject.name] = 1
+    with open(POKEMON_STATS_FILE, "w") as OUTFile:
+        dump(pokeDict, OUTFile, indent="  ")
 
+def getPokemonObject(name_num : str) -> tuple:
     if (name_num.isdigit()):
         pokeID = int(name_num)
         if (pokeID < MIN_POKE_ID or pokeID > MAX_POKE_ID):
@@ -49,6 +56,17 @@ def mainPokemonCommand(name_num : str):
             pokeID = pokeObject.id
         except:
             return None
+    return (pokeObject, pokeID)
+
+def mainPokemonCommand(name_num : str):
+    descript_string = ""
+    pokemon_embed = getBaseEmbed()
+
+    pokeTuple = getPokemonObject(name_num)
+    if (pokeTuple == None):
+        return None
+    pokeObject = pokeTuple[0]
+    pokeID = pokeTuple[1]
 
     pokemon_embed.set_image(url=getOfficialArt(pokeID))
     pokemon_embed.set_thumbnail(url=pokeObject.sprites.front_default)
@@ -73,29 +91,18 @@ def mainPokemonCommand(name_num : str):
     #pokemon_embed.description += f"\nWEIGHT: {pokeObject.weight}"
     pokemon_embed.description += "```"
 
-    with open(POKEMON_STATS_FILE, "r") as INFile:
-        pokeDict = load(INFile)
-    try:
-        pokeDict[pokeObject.name] += 1
-    except:
-        pokeDict[pokeObject.name] = 1
-    with open(POKEMON_STATS_FILE, "w") as OUTFile:
-        dump(pokeDict, OUTFile, indent="  ")
+    incrementPokemonJson(pokeObject)
 
     return pokemon_embed
 
 def pokemonImageCommand(name_num : str, image_type : int):
-    if (name_num.isdigit()):
-        pokeID = int(name_num)
-        if (pokeID < MIN_POKE_ID or pokeID > MAX_POKE_ID):
-            return None
-        pokeObject = pokebase.pokemon(int(name_num))
-    else:
-        pokeObject = pokebase.pokemon(name_num.lower())
-        try:
-            pokeID = pokeObject.id
-        except:
-            return None
+    pokeTuple = getPokemonObject(name_num)
+    if (pokeTuple == None):
+        return None
+    pokeObject = pokeTuple[0]
+    pokeID = pokeTuple[1]
+
+    incrementPokemonJson(pokeObject)
 
     return getArt(image_type, pokeID, pokeObject)
 

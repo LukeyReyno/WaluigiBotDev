@@ -68,8 +68,9 @@ cogs = [
     "slashcommands.sBotw",
     "slashcommands.sPokemon",
     "slashcommands.sStats",
-    "slashcommands.sReddit"
-    ]#, "commands.anime"]
+    "slashcommands.sReddit",
+    "slashcommands.sAnime",
+    "commands.anime"]
 for cog in cogs:
     c.load_extension(cog)
 
