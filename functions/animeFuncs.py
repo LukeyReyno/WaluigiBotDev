@@ -51,22 +51,45 @@ def getBaseEmbed():
 
 def searchAnime(animeCreds, query):
     response = requests.get(f'https://api.myanimelist.net/v2/anime?q={query}&limit=4', headers={"Authorization":f"Bearer {animeCreds.token}"})
-    print(response)
+    #print(response)
     results = response.json()
     try:
-        resultTitle = results["data"][0]["node"]["title"]
-    except:
+        animeSearchDict = results["data"][0]["node"]
+        resultTitle = animeSearchDict["title"]
+    except Exception as e:
+        print(e)
         return None
     
     incrementAnimeJson(resultTitle)
 
     anime_embed = getBaseEmbed()
     anime_embed.title = f'Anime Search First Result: {resultTitle}'
-    url = f'https://myanimelist.net/anime/{results["data"][0]["node"]["id"]}/{resultTitle}?cat=anime'
+    url = f'https://myanimelist.net/anime/{animeSearchDict["id"]}/{resultTitle}?cat=anime'
     url = url.replace(' ', '_')
 
     anime_embed.url = url
-    anime_embed.set_image(url=f'{results["data"][0]["node"]["main_picture"]["medium"]}')
+    anime_embed.set_image(url=f'{animeSearchDict["main_picture"]["medium"]}')
+
+    response = requests.get(f'https://api.myanimelist.net/v2/anime/{animeSearchDict["id"]}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,num_episodes,source,average_episode_duration,rating,pictures,background,recommendations,studios,statistics', headers={"Authorization":f"Bearer {animeCreds.token}"})
+    print(response)
+    animeDict = response.json()
+    print(animeDict)
+    try:
+        descriptString = "```\n"
+        descriptString += f'Premiered: {animeDict["start_date"]}\n'
+        descriptString += f'User Score: {animeDict["mean"]} / 10\n'
+        descriptString += f'Number of Episodes: {animeDict["num_episodes"]}\n'
+        descriptString += f'Ranking: #{animeDict["rank"]}\n'
+        descriptString += f'Popularity: #{animeDict["popularity"]}\n'
+        descriptString += f'{animeDict["status"].replace("_", " ").upper()}\n\n'
+        descriptString += "Genres: \n"
+        for genreDict in animeDict["genres"]:
+            descriptString += f'-  {genreDict["name"]}\n'
+        descriptString += "```"
+        anime_embed.description = descriptString
+    except Exception as e:
+        print(e)
+        pass
 
     return anime_embed
 
@@ -97,7 +120,7 @@ def animeStats():
 
     i = 1
     for comm in commandSorted:
-        descript_string += f"{i:2d}. {comm.upper():12s}  {commandSorted[comm]:7d}\n"
+        descript_string += f"{i:2d}. {comm.upper():30s}  {commandSorted[comm]:12d}\n"
         i += 1
         if i > 10:
             break

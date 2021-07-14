@@ -53,6 +53,7 @@ async def on_ready():
     await c.change_presence(activity=discord.Game(name="Mario Kart 8 Deluxe | dwah help"))
 
 cogs = [
+    #"commands.anime",
     "commands.basic", 
     "commands.hangman", 
     "commands.wordsearch", 
@@ -64,13 +65,12 @@ cogs = [
     "commands.exec",
     "commands.component",
     "commands.stats",
+    #"slashcommands.sAnime",
     "slashcommands.sBasic",
     "slashcommands.sBotw",
     "slashcommands.sPokemon",
     "slashcommands.sStats",
-    "slashcommands.sReddit",
-    "slashcommands.sAnime",
-    "commands.anime"]
+    "slashcommands.sReddit"]
 for cog in cogs:
     c.load_extension(cog)
 
