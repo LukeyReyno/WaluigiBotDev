@@ -1,5 +1,4 @@
 import discord
-import pokebase
 import json
 import requests
 
