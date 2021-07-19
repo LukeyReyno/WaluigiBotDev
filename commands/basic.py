@@ -2,7 +2,7 @@ import discord
 import random
 
 from discord.ext import commands, tasks
-from functions.dailyRequests import updateSongList, updateChannelList
+from functions.dailyRequests import updateSongList, dailyCommandFunction, MUSIC
 from functions.constants import GAME_STATS_FILE
 from json import *
 
@@ -178,41 +178,8 @@ class basic(commands.Cog):
         await ctx.send(results)
 
     @commands.command()
-    async def daily(self, ctx):
-        sendPerms = ctx.channel.permissions_for(await ctx.guild.fetch_member(self.client.user.id)).send_messages
-        if not sendPerms:
-            return await ctx.author.send("`I cannot send messages in that text channel`")
-        
-        c = ctx.channel.id
-
-        dailyType = "songChanList"
-        dailyChannelList = updateChannelList(dailyType)
-        
-        if c not in dailyChannelList:
-            with open(GAME_STATS_FILE, "r") as INFile:
-                WahDict = load(INFile)
-            WahDict[dailyType] += [c]
-            dailyChannelList = WahDict[dailyType]
-            with open(GAME_STATS_FILE, "w") as OUTFile:
-                dump(WahDict, OUTFile, indent="  ")
-            return await ctx.send("`This Channel Will Now Receive Routine Messages`")
-
-        await ctx.send("`This Channel Already Receives Routine Messages\nDo you want me to stop sending Messages? (yes/no)`")
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
-        try:
-            response = await self.client.wait_for('message', check=check, timeout=60)
-        except:
-            return await ctx.send("`TimeoutError: No changes have been made.`")
-        if response.content.lower() == "yes":
-            with open(GAME_STATS_FILE, "r") as INFile:
-                WahDict = load(INFile)
-            WahDict[dailyType].remove(c)
-            dailyChannelList = WahDict[dailyType]
-            with open(GAME_STATS_FILE, "w") as OUTFile:
-                dump(WahDict, OUTFile, indent="  ")
-            return await ctx.send("`This Channel Will No Longer Receive Routine Messages`")
-        return await ctx.send("`No changes have been made.`")
+    async def daily(self, ctx, dailyType = MUSIC):
+        await dailyCommandFunction(self.client, ctx, dailyType)
 
     @commands.command()
     async def avatar(self, ctx, arg : str = None):

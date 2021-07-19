@@ -6,6 +6,7 @@ import discord_slash.context as S
 import asyncpraw
 import json
 
+from functions.general import getResponse
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
@@ -116,14 +117,3 @@ async def redditFunction(discordClient, ctx, sub : str, sortType: str):
     except Exception as e:
         print(e)
         return await ctx.send(f"`Error: {e}`")
-
-async def getResponse(discordClient, ctx: C.Context): #method for getting guesses and deleting author message
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
-
-        try:
-            guess = await discordClient.wait_for('message', check=check, timeout=60)
-        except:
-            return await ctx.send("`TimeoutError`")
-
-        return guess
