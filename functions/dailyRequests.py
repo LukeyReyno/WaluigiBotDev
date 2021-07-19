@@ -1,13 +1,12 @@
 import discord
 import random
 import asyncio
-import time
-import datetime
 
 from discord import embeds
 from json import *
 from discord.ext import commands
 from functions.statsFuncs import waluigiBotStats
+from functions.redditFuncs import hmmmFunction
 from functions.constants import GAME_STATS_FILE, SONG_FILE
 
 def updateChannelList(channelList: str):
@@ -49,5 +48,15 @@ async def dailyStatMessage(c: commands.Bot):
         try:
             stat_embed = waluigiBotStats(c.user, len(c.guilds), len(c.users))
             await stat_channel.send(embed=stat_embed)
+        except:
+            print(f"Error in Routine Message for {chan_id}")
+
+async def dailyHmmmMessage(c: commands.Bot):
+    statChannelList = updateChannelList("hmmmChanList")
+    for chan_id in statChannelList:
+        channel = c.get_channel(chan_id)
+        try:
+            imgUrl = hmmmFunction()
+            await channel.send(imgUrl)
         except:
             print(f"Error in Routine Message for {chan_id}")
