@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
+from functions.dailyRequests import dailyCommandFunction
 from functions.constants import GUILDS
 from json import *
 
@@ -33,6 +34,43 @@ class sBasic(commands.Cog):
         animals = '🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🦗 🕷 🦂 🐢 🐍 🦎 🦖 🦕 🐙 🦑 🦐 🦞 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🦧 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🦮 🐕‍🦺 🐈 🐓 🦃 🦚 🦜 🦢 🦩 🕊 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿 🦔 🐉'
         animals_list = animals.split()
         return await ctx.send(f'{random.choice(food_list)}{random.choice(animals_list)}')
+
+    @cog_ext.cog_slash(name="daily", 
+        description="sets up a daily message for bot to send", 
+        guild_ids=GUILDS, 
+        options=[
+            create_option(
+                name="daily_type",
+                description="Decide what kind of message for bot to send each day",
+                option_type=str,
+                required=True,
+                choices=[
+                    create_choice(
+                        name="song",
+                        value="song"
+                    ),
+                    create_choice(
+                        name="stat",
+                        value="stat"
+                    ),
+                    create_choice(
+                        name="hmmm",
+                        value="hmmm"
+                    ),
+                    create_choice(
+                        name="pokemon",
+                        value="pokemon"
+                    ),
+                    create_choice(
+                        name="info",
+                        value="info"
+                    )
+                ]
+            )
+        ])
+    async def daily(self, ctx: SlashContext, dailyType : str = None):
+        await ctx.defer()
+        return await dailyCommandFunction(self.client, ctx, dailyType)
 
 def setup(client):
     client.add_cog(sBasic(client))

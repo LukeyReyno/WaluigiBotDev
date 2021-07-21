@@ -2,8 +2,7 @@ import discord
 import random
 
 from discord.ext import commands, tasks
-from functions.dailyRequests import updateSongList, dailyCommandFunction, MUSIC
-from functions.constants import GAME_STATS_FILE
+from functions.dailyRequests import dailyCommandFunction, updateSongList
 from json import *
 
 class basic(commands.Cog):
@@ -178,7 +177,7 @@ class basic(commands.Cog):
         await ctx.send(results)
 
     @commands.command()
-    async def daily(self, ctx, dailyType = MUSIC):
+    async def daily(self, ctx, dailyType = None):
         await dailyCommandFunction(self.client, ctx, dailyType)
 
     @commands.command()
