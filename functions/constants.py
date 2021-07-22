@@ -14,6 +14,7 @@ This bot can send specific messages to this channel each day using this command.
 \n\
 A few things to note:\n\
   The bot will no longer send messages to this channel message sending permissions are changed.\n\
+  The daily message is only unique to the day, not the the channel.\n\
   The daily messages can be cancelled by using the same command that enabled the messages to be sent.\n\
     For example:\n\
       Using 'wah daily song' a second time.\n\

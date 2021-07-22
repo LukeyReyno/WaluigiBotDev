@@ -1,6 +1,7 @@
 import discord
 import random
 import asyncio
+from discord import message
 import discord.ext.commands.context as C
 import discord_slash.context as S
 
@@ -20,8 +21,14 @@ STATS = "stat"
 HMMM = "hmmm"
 POKEMON = "pokemon"
 INFO = "info"
-
 VALID_ARGUMENTS = [MUSIC, STATS, HMMM, POKEMON, INFO]
+
+numDailys = 4
+MUSIC_INDEX = 0
+STATS_INDEX = 1
+HMMM_INDEX = 2
+POKEMON_INDEX = 3
+previousDayMessage = [None for i in range(numDailys)]
 
 def getChannelList(channelList: str):
     with open(GAME_STATS_FILE, "r") as INFile:
@@ -62,6 +69,15 @@ def updateSongList():
         songs += [song]
     return songs
 
+async def showPreviousDaily(ctx, dailyTypeIndex):
+    previousResult = previousDayMessage[dailyTypeIndex]
+    if previousResult != None:
+        prefix = "`Example of Previous Daily:`\n"
+        if type(previousResult) == discord.Embed:
+            return await ctx.send(content=prefix, embed=previousResult)
+        return await ctx.send(prefix + previousResult)
+    return None
+
 async def dailyCommandFunction(discordClient, ctx, dailyType):
     # Bot checks if command is invoked in a text channel
     if type(ctx.channel) == DMChannel:
@@ -91,11 +107,12 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
         dailyChannelList = WahDict[DAILY_DICT][dailyType]
         with open(GAME_STATS_FILE, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
-        return await ctx.send(f"`This Channel Will Now Receive Routine Messages for {dailyType}`")
+        await ctx.send(f"`This Channel Will Now Receive Routine Messages for {dailyType}`")
+        return await showPreviousDaily(ctx, VALID_ARGUMENTS.index(dailyType))
 
     if type(ctx) == S.SlashContext:
         deleteChannelFromList(dailyType, chan_id)
-        return await ctx.send("`This Channel Will No Longer Receive Routine Messages`")
+        return await ctx.send(f"`This Channel Will No Longer Receive Routine Messages for {dailyType}`")
 
     # cancel daily message for text command
     await ctx.send("`This Channel Already Receives Routine Messages\nDo you want me to stop sending Messages? (yes/no)`")
@@ -104,7 +121,7 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
 
     if response.content.lower() == "yes":
         deleteChannelFromList(dailyType, chan_id)
-        return await ctx.send("`This Channel Will No Longer Receive Routine Messages`")
+        return await ctx.send(f"`This Channel Will No Longer Receive Routine Messages for {dailyType}`")
     return await ctx.send("`No changes have been made.`")
 
 async def dailySongMessage(c: commands.Bot):
@@ -114,13 +131,17 @@ async def dailySongMessage(c: commands.Bot):
     with open(GAME_STATS_FILE, "r") as INFile:
         WahDict = load(INFile)
     day = WahDict["music_day"]
+    messageContent = "`Waluigi's Daily `:calendar:` Music `:musical_note:` Recommendation `:point_down:` Day:` " + str(day) + "\n" + str(spotify_link)
+    previousDayMessage[MUSIC_INDEX] = messageContent
+
     for chan_id in songChannelList:
         mus_channel = c.get_channel(chan_id)
         try:
-            await mus_channel.send("`Waluigi's Daily `:calendar:` Music `:musical_note:` Recommendation `:point_down:` Day:` " + str(day) + "\n" + str(spotify_link))
+            await mus_channel.send(messageContent)
         except:
             print(f"Error in Routine Message for {chan_id}")
-            deleteChannelFromList(MUSIC, chan_id)
+            WahDict[DAILY_DICT][MUSIC].remove(chan_id) # remove no longer valid channel id
+
     WahDict["music_day"] += 1
     with open(GAME_STATS_FILE, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
@@ -128,6 +149,7 @@ async def dailySongMessage(c: commands.Bot):
 async def dailyStatMessage(c: commands.Bot):
     statChannelList = getChannelList(STATS)
     stat_embed = waluigiBotStats(c.user, len(c.guilds), len(c.users))
+    previousDayMessage[STATS_INDEX] = stat_embed
 
     for chan_id in statChannelList:
         stat_channel = c.get_channel(chan_id)
@@ -140,6 +162,7 @@ async def dailyStatMessage(c: commands.Bot):
 async def dailyHmmmMessage(c: commands.Bot):
     statChannelList = getChannelList(HMMM)
     imgUrl = await hmmmFunction()
+    previousDayMessage[HMMM_INDEX] = imgUrl
 
     for chan_id in statChannelList:
         channel = c.get_channel(chan_id)
@@ -153,6 +176,7 @@ async def dailyPokemonMessage(c: commands.Bot):
     statChannelList = getChannelList(POKEMON)
     name_num = str(random.choice(range(1,899)))
     pokeEmbed = mainPokemonCommand(name_num)
+    previousDayMessage[POKEMON_INDEX] = pokeEmbed
 
     for chan_id in statChannelList:
         channel = c.get_channel(chan_id)
