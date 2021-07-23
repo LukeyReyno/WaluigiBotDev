@@ -21,7 +21,7 @@ STATS = "stat"
 HMMM = "hmmm"
 POKEMON = "pokemon"
 INFO = "info"
-VALID_ARGUMENTS = [MUSIC, STATS, HMMM, POKEMON, INFO]
+validArguments = [MUSIC, STATS, HMMM, POKEMON, INFO]
 
 numDailys = 4
 MUSIC_INDEX = 0
@@ -91,7 +91,7 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
     chan_id = ctx.channel.id
 
     # determine if the given argument is valid
-    if dailyType == None or dailyType not in VALID_ARGUMENTS:
+    if dailyType == None or dailyType not in validArguments:
         return await ctx.send(DAILY_MESSAGE_HELP)
     if dailyType == INFO:
         info = getChannelInfo(chan_id)
@@ -108,7 +108,7 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
         with open(GAME_STATS_FILE, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
         await ctx.send(f"`This Channel Will Now Receive Routine Messages for {dailyType}`")
-        return await showPreviousDaily(ctx, VALID_ARGUMENTS.index(dailyType))
+        return await showPreviousDaily(ctx, validArguments.index(dailyType))
 
     if type(ctx) == S.SlashContext:
         deleteChannelFromList(dailyType, chan_id)
@@ -124,12 +124,20 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
         return await ctx.send(f"`This Channel Will No Longer Receive Routine Messages for {dailyType}`")
     return await ctx.send("`No changes have been made.`")
 
-async def dailySongMessage(c: commands.Bot):
+def updateDailyJSON(func):
+    async def inner(*args, **kwargs):
+        with open(GAME_STATS_FILE, "r") as INFile:
+            WahDict = load(INFile)
+        await func(WahDict, *args, **kwargs)
+        with open(GAME_STATS_FILE, "w") as OUTFile:
+            dump(WahDict, OUTFile, indent="  ")
+    return inner
+
+@updateDailyJSON
+async def dailySongMessage(WahDict, c: commands.Bot):
     songChannelList = getChannelList(MUSIC)
     songs = updateSongList()
     spotify_link = random.choice(songs)
-    with open(GAME_STATS_FILE, "r") as INFile:
-        WahDict = load(INFile)
     day = WahDict["music_day"]
     messageContent = "`Waluigi's Daily `:calendar:` Music `:musical_note:` Recommendation `:point_down:` Day:` " + str(day) + "\n" + str(spotify_link)
     previousDayMessage[MUSIC_INDEX] = messageContent
@@ -141,12 +149,10 @@ async def dailySongMessage(c: commands.Bot):
         except:
             print(f"Error in Routine Message for {chan_id}")
             WahDict[DAILY_DICT][MUSIC].remove(chan_id) # remove no longer valid channel id
-
     WahDict["music_day"] += 1
-    with open(GAME_STATS_FILE, "w") as OUTFile:
-        dump(WahDict, OUTFile, indent="  ")
 
-async def dailyStatMessage(c: commands.Bot):
+@updateDailyJSON
+async def dailyStatMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(STATS)
     stat_embed = waluigiBotStats(c.user, len(c.guilds), len(c.users))
     previousDayMessage[STATS_INDEX] = stat_embed
@@ -157,9 +163,10 @@ async def dailyStatMessage(c: commands.Bot):
             await stat_channel.send(embed=stat_embed)
         except:
             print(f"Error in Routine Message for {chan_id}")
-            deleteChannelFromList(STATS, chan_id)
+            WahDict[DAILY_DICT][STATS].remove(chan_id)
 
-async def dailyHmmmMessage(c: commands.Bot):
+@updateDailyJSON
+async def dailyHmmmMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(HMMM)
     imgUrl = await hmmmFunction()
     previousDayMessage[HMMM_INDEX] = imgUrl
@@ -170,9 +177,10 @@ async def dailyHmmmMessage(c: commands.Bot):
             await channel.send(imgUrl)
         except:
             print(f"Error in Routine Message for {chan_id}")
-            deleteChannelFromList(HMMM, chan_id)
+            WahDict[DAILY_DICT][HMMM].remove(chan_id)
 
-async def dailyPokemonMessage(c: commands.Bot):
+@updateDailyJSON
+async def dailyPokemonMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(POKEMON)
     name_num = str(random.choice(range(1,899)))
     pokeEmbed = mainPokemonCommand(name_num)
@@ -184,4 +192,4 @@ async def dailyPokemonMessage(c: commands.Bot):
             await channel.send(embed=pokeEmbed)
         except:
             print(f"Error in Routine Message for {chan_id}")
-            deleteChannelFromList(POKEMON, chan_id)
+            WahDict[DAILY_DICT][POKEMON].remove(chan_id)
