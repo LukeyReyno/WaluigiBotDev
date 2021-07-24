@@ -9,7 +9,7 @@ from json import *
 from discord.ext.commands.errors import *
 from discord_slash import SlashCommand
 from discord_slash.context import SlashContext
-from functions.dailyRequests import dailyHmmmMessage, dailyPokemonMessage, dailySongMessage, dailyStatMessage
+from functions.dailyRequests import *
 from functions.constants import GAME_STATS_FILE, COMMAND_STATS_FILE
 
 TOKENFile = open("WahToken.txt", "r")
@@ -33,6 +33,7 @@ async def background_loop():
             await dailyStatMessage(c)
             await dailyHmmmMessage(c)
             await dailyPokemonMessage(c)
+            await dailyBotwMessage(c)
             MP_num = random.choice(range(2,11))
             await c.change_presence(activity=discord.Game(name=f"Mario Party {MP_num} | dwah help"))
         await asyncio.sleep(3600)

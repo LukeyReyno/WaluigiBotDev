@@ -1,17 +1,17 @@
 import discord
 import random
-import asyncio
-from discord import message
 import discord.ext.commands.context as C
 import discord_slash.context as S
 
 from json import *
 from discord.ext import commands
+from discord import message
 from discord.channel import DMChannel
 from functions.general import getResponse
 from functions.statsFuncs import waluigiBotStats
 from functions.redditFuncs import hmmmFunction
 from functions.pokemonFuncs import mainPokemonCommand
+from functions.botwFuncs import botwFunction
 from functions.constants import GAME_STATS_FILE, SONG_FILE, DAILY_MESSAGE_HELP
 
 DAILY_DICT = "dailyChanLists"
@@ -20,14 +20,16 @@ MUSIC = "song"
 STATS = "stat"
 HMMM = "hmmm"
 POKEMON = "pokemon"
+BOTW = "botw"
 INFO = "info"
-validArguments = [MUSIC, STATS, HMMM, POKEMON, INFO]
+validArguments = [MUSIC, STATS, HMMM, POKEMON, BOTW, INFO]
 
-numDailys = 4
+numDailys = 5
 MUSIC_INDEX = 0
 STATS_INDEX = 1
 HMMM_INDEX = 2
 POKEMON_INDEX = 3
+BOTW_INDEX = 4
 previousDayMessage = [None for i in range(numDailys)]
 
 def getChannelList(channelList: str):
@@ -193,3 +195,17 @@ async def dailyPokemonMessage(WahDict, c: commands.Bot):
         except:
             print(f"Error in Routine Message for {chan_id}")
             WahDict[DAILY_DICT][POKEMON].remove(chan_id)
+
+@updateDailyJSON
+async def dailyBotwMessage(WahDict, c: commands.Bot):
+    statChannelList = getChannelList(BOTW)
+    botwEmbed = botwFunction(None)
+    previousDayMessage[BOTW_INDEX] = botwEmbed
+
+    for chan_id in statChannelList:
+        channel = c.get_channel(chan_id)
+        try:
+            await channel.send(embed=botwEmbed)
+        except:
+            print(f"Error in Routine Message for {chan_id}")
+            WahDict[DAILY_DICT][BOTW].remove(chan_id)

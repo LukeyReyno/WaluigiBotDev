@@ -24,6 +24,7 @@ These are the current daily message arguments that Waluigi Bot recognizes:
   - 'stat' : Information on it's on stats (most used commands, number of servers, etc.).
   - 'hmmm' : A random image from r/hmmm on Reddit (Warning: occasionally NSFW)
   - 'pokemon' : An embed from a random Pokemon
+  - 'botw' : An embed from a random Legend of Zelda: Breath of the Wild Entity
   - 'info' : This argument displays the current daily messages this specific channel is signed up for.
 
 Use 'wah daily [argument listed above]' to start getting daily messages.
