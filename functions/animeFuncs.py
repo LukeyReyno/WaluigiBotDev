@@ -1,6 +1,7 @@
 import discord
 import json
 import requests
+import random
 
 from functions.constants import ANIME_STATS_FILE
 
@@ -48,17 +49,8 @@ def getBaseEmbed():
 
     return embed
 
-def searchAnime(animeCreds, query):
-    response = requests.get(f'https://api.myanimelist.net/v2/anime?q={query}&limit=4', headers={"Authorization":f"Bearer {animeCreds.token}"})
-    #print(response)
-    results = response.json()
-    try:
-        animeSearchDict = results["data"][0]["node"]
-        resultTitle = animeSearchDict["title"]
-    except Exception as e:
-        print(e)
-        return None
-    
+def getAnimeInformationEmbed(animeSearchDict, animeCredToken):
+    resultTitle = animeSearchDict["title"]
     incrementAnimeJson(resultTitle)
 
     anime_embed = getBaseEmbed()
@@ -69,10 +61,10 @@ def searchAnime(animeCreds, query):
     anime_embed.url = url
     anime_embed.set_image(url=f'{animeSearchDict["main_picture"]["medium"]}')
 
-    response = requests.get(f'https://api.myanimelist.net/v2/anime/{animeSearchDict["id"]}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,num_episodes,source,average_episode_duration,rating,pictures,background,recommendations,studios,statistics', headers={"Authorization":f"Bearer {animeCreds.token}"})
-    print(response)
+    response = requests.get(f'https://api.myanimelist.net/v2/anime/{animeSearchDict["id"]}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,num_episodes,source,average_episode_duration,rating,pictures,background,recommendations,studios,statistics', headers={"Authorization":f"Bearer {animeCredToken}"})
+    #print(response)
     animeDict = response.json()
-    print(animeDict)
+    #print(animeDict)
     try:
         descriptString = "```\n"
         descriptString += f'Premiered: {animeDict["start_date"]}\n'
@@ -91,6 +83,29 @@ def searchAnime(animeCreds, query):
         pass
 
     return anime_embed
+
+def searchAnime(animeCreds, query):
+    response = requests.get(f'https://api.myanimelist.net/v2/anime?q={query}&limit=4', headers={"Authorization":f"Bearer {animeCreds.token}"})
+    #print(response)
+    results = response.json()
+    try:
+        animeSearchDict = results["data"][0]["node"]
+        return getAnimeInformationEmbed(animeSearchDict, animeCreds.token)
+    except Exception as e:
+        print(e)
+        return None
+
+def randomAnime(animeCreds):
+    NUM_ANIME = 500
+    response = requests.get(f'https://api.myanimelist.net/v2/anime/ranking?ranking_type=all&limit={NUM_ANIME}', headers={"Authorization":f"Bearer {animeCreds.token}"})
+    #print(response)
+    results = response.json()
+    try:
+        animeSearchDict = results["data"][random.choice(range(0, NUM_ANIME))]["node"]
+        return getAnimeInformationEmbed(animeSearchDict, animeCreds.token)
+    except Exception as e:
+        print(e)
+        return None
 
 def incrementAnimeJson(resultTitle):
     with open(ANIME_STATS_FILE, "r") as INFile:

@@ -3,15 +3,18 @@ from discord import embeds
 from discord.embeds import Embed
 
 from discord.ext import commands, tasks
-from functions.animeFuncs import AnimeCredentials, searchAnime, animeStats, ANIME_CREDENTIAL
+from functions.animeFuncs import randomAnime, searchAnime, animeStats, ANIME_CREDENTIAL
 
 class anime(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases=["as", "animesearch", "asearch"])
-    async def anime_search(self, ctx, *, query):
-        anime_embed = searchAnime(ANIME_CREDENTIAL, query)
+    @commands.command(aliases=["as", "animesearch", "anime_search", "asearch"])
+    async def anime(self, ctx, *, query):
+        if query == "random":
+            anime_embed = randomAnime(ANIME_CREDENTIAL)
+        else:
+            anime_embed = searchAnime(ANIME_CREDENTIAL, query)
         if (anime_embed == None):
             return await ctx.send("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
         return await ctx.send(embed=anime_embed)
