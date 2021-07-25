@@ -62,6 +62,10 @@ class sBasic(commands.Cog):
                         value="pokemon"
                     ),
                     create_choice(
+                        name="botw",
+                        value="botw"
+                    ),
+                    create_choice(
                         name="info",
                         value="info"
                     )

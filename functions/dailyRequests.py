@@ -1,5 +1,6 @@
 import discord
 import random
+import pickle
 import discord.ext.commands.context as C
 import discord_slash.context as S
 
@@ -12,7 +13,7 @@ from functions.statsFuncs import waluigiBotStats
 from functions.redditFuncs import hmmmFunction
 from functions.pokemonFuncs import mainPokemonCommand
 from functions.botwFuncs import botwFunction
-from functions.constants import GAME_STATS_FILE, SONG_FILE, DAILY_MESSAGE_HELP
+from functions.constants import DAILY_CHANNEL_LIST, SONG_FILE, DAILY_MESSAGE_HELP
 
 DAILY_DICT = "dailyChanLists"
 
@@ -24,16 +25,14 @@ BOTW = "botw"
 INFO = "info"
 validArguments = [MUSIC, STATS, HMMM, POKEMON, BOTW, INFO]
 
-numDailys = 5
-MUSIC_INDEX = 0
-STATS_INDEX = 1
-HMMM_INDEX = 2
-POKEMON_INDEX = 3
-BOTW_INDEX = 4
-previousDayMessage = [None for i in range(numDailys)]
+try:
+    with open("data/prevDaily.pickle", "rb") as pickleFile:
+        prevDict = pickle.load(pickleFile)
+except:
+    prevDict = {}
 
 def getChannelList(channelList: str):
-    with open(GAME_STATS_FILE, "r") as INFile:
+    with open(DAILY_CHANNEL_LIST, "r") as INFile:
         WahDict = load(INFile)
     try:
         return WahDict[DAILY_DICT][channelList]
@@ -43,7 +42,7 @@ def getChannelList(channelList: str):
 def getChannelInfo(chan_id):
     results ="```\nThis channel is receiving the following daily messages:\n"
     numDailys = 0
-    with open(GAME_STATS_FILE, "r") as INFile:
+    with open(DAILY_CHANNEL_LIST, "r") as INFile:
         WahDict = load(INFile)
         WahDict = WahDict[DAILY_DICT]
     for dailyType in WahDict:
@@ -58,10 +57,10 @@ def getChannelInfo(chan_id):
     return results
 
 def deleteChannelFromList(dailyType, channel):
-    with open(GAME_STATS_FILE, "r") as INFile:
+    with open(DAILY_CHANNEL_LIST, "r") as INFile:
         WahDict = load(INFile)
     WahDict[DAILY_DICT][dailyType].remove(channel)
-    with open(GAME_STATS_FILE, "w") as OUTFile:
+    with open(DAILY_CHANNEL_LIST, "w") as OUTFile:
         dump(WahDict, OUTFile, indent="  ")
 
 def updateSongList():
@@ -71,13 +70,17 @@ def updateSongList():
         songs += [song]
     return songs
 
-async def showPreviousDaily(ctx, dailyTypeIndex):
-    previousResult = previousDayMessage[dailyTypeIndex]
-    if previousResult != None:
-        prefix = "`Example of Previous Daily:`\n"
-        if type(previousResult) == discord.Embed:
-            return await ctx.send(content=prefix, embed=previousResult)
-        return await ctx.send(prefix + previousResult)
+async def showPreviousDaily(ctx, dailyType):
+    try:
+        previousResult = prevDict[dailyType]
+        if previousResult != None:
+            prefix = "`Example of Previous Daily:`\n"
+            if type(previousResult) == discord.Embed:
+                return await ctx.send(content=prefix, embed=previousResult)
+            return await ctx.send(prefix + previousResult)
+    except Exception as e:
+        print(f"{__name__}: {e}")
+        pass
     return None
 
 async def dailyCommandFunction(discordClient, ctx, dailyType):
@@ -103,14 +106,14 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
     
     # activate daily message
     if chan_id not in dailyChannelList:
-        with open(GAME_STATS_FILE, "r") as INFile:
+        with open(DAILY_CHANNEL_LIST, "r") as INFile:
             WahDict = load(INFile)
         WahDict[DAILY_DICT][dailyType] += [chan_id]
         dailyChannelList = WahDict[DAILY_DICT][dailyType]
-        with open(GAME_STATS_FILE, "w") as OUTFile:
+        with open(DAILY_CHANNEL_LIST, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
         await ctx.send(f"`This Channel Will Now Receive Routine Messages for {dailyType}`")
-        return await showPreviousDaily(ctx, validArguments.index(dailyType))
+        return await showPreviousDaily(ctx, dailyType)
 
     if type(ctx) == S.SlashContext:
         deleteChannelFromList(dailyType, chan_id)
@@ -128,10 +131,10 @@ async def dailyCommandFunction(discordClient, ctx, dailyType):
 
 def updateDailyJSON(func):
     async def inner(*args, **kwargs):
-        with open(GAME_STATS_FILE, "r") as INFile:
+        with open(DAILY_CHANNEL_LIST, "r") as INFile:
             WahDict = load(INFile)
         await func(WahDict, *args, **kwargs)
-        with open(GAME_STATS_FILE, "w") as OUTFile:
+        with open(DAILY_CHANNEL_LIST, "w") as OUTFile:
             dump(WahDict, OUTFile, indent="  ")
     return inner
 
@@ -142,7 +145,7 @@ async def dailySongMessage(WahDict, c: commands.Bot):
     spotify_link = random.choice(songs)
     day = WahDict["music_day"]
     messageContent = "`Waluigi's Daily `:calendar:` Music `:musical_note:` Recommendation `:point_down:` Day:` " + str(day) + "\n" + str(spotify_link)
-    previousDayMessage[MUSIC_INDEX] = messageContent
+    prevDict[MUSIC] = messageContent
 
     for chan_id in songChannelList:
         mus_channel = c.get_channel(chan_id)
@@ -157,7 +160,7 @@ async def dailySongMessage(WahDict, c: commands.Bot):
 async def dailyStatMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(STATS)
     stat_embed = waluigiBotStats(c.user, len(c.guilds), len(c.users))
-    previousDayMessage[STATS_INDEX] = stat_embed
+    prevDict[STATS] = stat_embed
 
     for chan_id in statChannelList:
         stat_channel = c.get_channel(chan_id)
@@ -171,7 +174,7 @@ async def dailyStatMessage(WahDict, c: commands.Bot):
 async def dailyHmmmMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(HMMM)
     imgUrl = await hmmmFunction()
-    previousDayMessage[HMMM_INDEX] = imgUrl
+    prevDict[HMMM] = imgUrl
 
     for chan_id in statChannelList:
         channel = c.get_channel(chan_id)
@@ -186,7 +189,7 @@ async def dailyPokemonMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(POKEMON)
     name_num = str(random.choice(range(1,899)))
     pokeEmbed = mainPokemonCommand(name_num)
-    previousDayMessage[POKEMON_INDEX] = pokeEmbed
+    prevDict[POKEMON] = pokeEmbed
 
     for chan_id in statChannelList:
         channel = c.get_channel(chan_id)
@@ -200,7 +203,7 @@ async def dailyPokemonMessage(WahDict, c: commands.Bot):
 async def dailyBotwMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(BOTW)
     botwEmbed = botwFunction(None)
-    previousDayMessage[BOTW_INDEX] = botwEmbed
+    prevDict[BOTW] = botwEmbed
 
     for chan_id in statChannelList:
         channel = c.get_channel(chan_id)
@@ -209,3 +212,15 @@ async def dailyBotwMessage(WahDict, c: commands.Bot):
         except:
             print(f"Error in Routine Message for {chan_id}")
             WahDict[DAILY_DICT][BOTW].remove(chan_id)
+
+def dumpPrevDict():
+    with open("data/prevDaily.pickle", "wb") as pickleFile:
+        pickle.dump(prevDict, pickleFile, pickle.HIGHEST_PROTOCOL)
+
+async def fullDailyRoutine(c: commands.Bot):
+    await dailySongMessage(c)
+    await dailyStatMessage(c)
+    await dailyHmmmMessage(c)
+    await dailyPokemonMessage(c)
+    await dailyBotwMessage(c)
+    dumpPrevDict()
