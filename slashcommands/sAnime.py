@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from json import *
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
-from functions.animeFuncs import AnimeCredentials, searchAnime, animeStats, ANIME_CREDENTIAL
+from functions.animeFuncs import searchAnime, randomAnime, animeStats, ANIME_CREDENTIAL
 from functions.constants import GUILDS
 
 class sAnime(commands.Cog):
@@ -28,6 +28,15 @@ class sAnime(commands.Cog):
         ])
     async def anime_search(self, ctx: SlashContext, query : str = None):
         anime_embed = searchAnime(ANIME_CREDENTIAL, query)
+        if (anime_embed == None):
+            return await ctx.send("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
+        return await ctx.send(embed=anime_embed)
+
+    @cog_ext.cog_subcommand(base="anime", name="random", 
+        description="grabs link of random result from MyAnimeList.com", 
+        guild_ids=GUILDS)
+    async def anime_random(self, ctx: SlashContext):
+        anime_embed = randomAnime(ANIME_CREDENTIAL)
         if (anime_embed == None):
             return await ctx.send("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
         return await ctx.send(embed=anime_embed)
