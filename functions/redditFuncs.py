@@ -31,6 +31,9 @@ async def hmmmFunction(showEmbed : bool = False):
     try:
         subreddit = await redditClient.subreddit("hmmm", fetch=True)
         submission = await subreddit.random()
+        if submission.over_18:
+            return "`This r/hmmm image is marked as nsfw`\n" \
+                f"|| {submission.url} ||"
         if showEmbed == False:
             return submission.url
         reddit_embed = getBaseEmbed(submission)
