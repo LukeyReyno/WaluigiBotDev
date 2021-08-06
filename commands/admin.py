@@ -12,9 +12,9 @@ class admin(commands.Cog):
         self.admins = []
         self.adminChannelID = 0
         self.wordChannelID = 0
-        self.initialize_admins()
+        self.__initialize_admins()
     
-    def initialize_admins(self):
+    def __initialize_admins(self):
         with open(ADMIN_FILE, "r") as INFile:
             adminDict = load(INFile)
         self.admins = adminDict["admins"]

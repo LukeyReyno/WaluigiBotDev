@@ -13,6 +13,7 @@ from functions.statsFuncs import waluigiBotStats
 from functions.redditFuncs import hmmmFunction
 from functions.pokemonFuncs import mainPokemonCommand
 from functions.botwFuncs import botwFunction
+from functions.animeFuncs import randomAnime, ANIME_CREDENTIAL
 from functions.constants import DAILY_CHANNEL_LIST, SONG_FILE, DAILY_MESSAGE_HELP
 
 DAILY_DICT = "dailyChanLists"
@@ -22,8 +23,9 @@ STATS = "stat"
 HMMM = "hmmm"
 POKEMON = "pokemon"
 BOTW = "botw"
+ANIME = "anime"
 INFO = "info"
-validArguments = [MUSIC, STATS, HMMM, POKEMON, BOTW, INFO]
+validArguments = [MUSIC, STATS, HMMM, POKEMON, BOTW, ANIME, INFO]
 
 try:
     with open("data/prevDaily.pickle", "rb") as pickleFile:
@@ -213,6 +215,23 @@ async def dailyBotwMessage(WahDict, c: commands.Bot):
             print(f"Error in Routine Message for {chan_id}")
             WahDict[DAILY_DICT][BOTW].remove(chan_id)
 
+@updateDailyJSON
+async def dailyAnimeMessage(WahDict, c: commands.Bot):
+    statChannelList = getChannelList(ANIME)
+    anime_embed = randomAnime(ANIME_CREDENTIAL)
+    if (anime_embed == None):
+        return await print("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
+
+    prevDict[ANIME] = anime_embed
+
+    for chan_id in statChannelList:
+        channel = c.get_channel(chan_id)
+        try:
+            await channel.send(embed=anime_embed)
+        except:
+            print(f"Error in Routine Message for {chan_id}")
+            WahDict[DAILY_DICT][ANIME].remove(chan_id)
+
 def dumpPrevDict():
     with open("data/prevDaily.pickle", "wb") as pickleFile:
         pickle.dump(prevDict, pickleFile, pickle.HIGHEST_PROTOCOL)
@@ -223,4 +242,5 @@ async def fullDailyRoutine(c: commands.Bot):
     await dailyHmmmMessage(c)
     await dailyPokemonMessage(c)
     await dailyBotwMessage(c)
+    await dailyAnimeMessage(c)
     dumpPrevDict()
