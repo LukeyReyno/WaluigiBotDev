@@ -9,6 +9,8 @@ This bot has a variety of text and slash commands in discord.
 Type 'wah help' to see a list of commands. 
 Typing '/' in discord will also bring of a list of valid slash commands.
 
+The bot uses several cogs that can be transferred to other discord bots if desired.
+
 Invite Link to Waluigi Bot
 https://discord.com/oauth2/authorize?client_id=223959196238872577&scope=bot%20applications.commands&permissions=2147609664(edited)
 
