@@ -97,7 +97,7 @@ def searchAnime(animeCreds, query):
 
 def randomAnime(animeCreds):
     NUM_ANIME = 500
-    response = requests.get(f'https://api.myanimelist.net/v2/anime/ranking?ranking_type=all&limit={NUM_ANIME}', headers={"Authorization":f"Bearer {animeCreds.token}"})
+    response = requests.get(f'https://api.myanimelist.net/v2/anime/ranking?ranking_type=bypopularity&limit={NUM_ANIME}', headers={"Authorization":f"Bearer {animeCreds.token}"})
     #print(response)
     results = response.json()
     try:
