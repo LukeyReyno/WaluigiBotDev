@@ -31,14 +31,20 @@ async def hmmmFunction(showEmbed : bool = False):
     try:
         subreddit = await redditClient.subreddit("hmmm", fetch=True)
         submission = await subreddit.random()
+        url = submission.url
+        if "/gallery/" in str(url): #grabs first image in a gallery
+            page = BeautifulSoup(urlopen(url), features="html.parser")
+            image = BeautifulSoup(str(page.findAll('img', alt=re.compile("r/"))[0]), "html.parser")
+            url=image.img["src"]
+
         if submission.over_18:
             return "`This r/hmmm image is marked as nsfw`\n" \
-                f"|| {submission.url} ||"
+                f"|| {url} ||"
         if showEmbed == False:
-            return submission.url
+            return url
         reddit_embed = getBaseEmbed(submission)
         reddit_embed.title = f"Random hmmm post"
-        reddit_embed.set_image(url=submission.url)
+        reddit_embed.set_image(url=url)
         return reddit_embed
     except Exception as e:
         print(e)
@@ -94,7 +100,7 @@ async def redditFunction(discordClient, ctx, sub : str, sortType: str):
         # Discord Embed Body Setup
         if submission.url[8:11] == 'i.r':
             reddit_embed.set_image(url=submission.url)
-        elif submission.url[23:30] == "gallery": #grabs first image in a gallery
+        elif "/gallery/" in submission.url: #grabs first image in a gallery
             page = BeautifulSoup(urlopen(submission.url), features="html.parser")
             image = BeautifulSoup(str(page.findAll('img', alt=re.compile("r/"))[0]), "html.parser")
             reddit_embed.set_image(url=image.img["src"])
