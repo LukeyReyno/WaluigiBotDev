@@ -10,7 +10,7 @@ from discord import message
 from discord.channel import DMChannel
 from functions.general import getResponse
 from functions.statsFuncs import waluigiBotStats
-from functions.redditFuncs import hmmmFunction
+from functions.redditFuncs import imageFunction
 from functions.pokemonFuncs import mainPokemonCommand
 from functions.botwFuncs import botwFunction
 from functions.animeFuncs import randomAnime, ANIME_CREDENTIAL
@@ -175,7 +175,7 @@ async def dailyStatMessage(WahDict, c: commands.Bot):
 @updateDailyJSON
 async def dailyHmmmMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(HMMM)
-    imgUrl = await hmmmFunction()
+    imgUrl = await imageFunction()
     prevDict[HMMM] = imgUrl
 
     for chan_id in statChannelList:

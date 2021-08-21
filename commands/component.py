@@ -76,9 +76,10 @@ async def on_component(ctx: ComponentContext):
         else:
             await ctx.edit_origin(content=f"`You pressed a {ctx.custom_id} button!`")
 
+    """
     elif ctx.component_type == ComponentType.select:
         # ctx.selected_options is a list of all the values the user selected
-        await ctx.edit_origin(content=f"You selected {ctx.selected_options}")
+        await ctx.edit_origin(content=f"You selected {ctx.selected_options}")"""
 
 def setup(client):
     client.add_cog(component(client))

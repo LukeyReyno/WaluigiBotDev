@@ -26,10 +26,11 @@ def getBaseEmbed(submission : asyncpraw.reddit.Submission):
 
     return reddit_embed
 
-async def hmmmFunction(showEmbed : bool = False):
-    #posts a random picture from the subreddit r/hmmm
+async def imageFunction(subName: str = "hmmm", showEmbed: bool = False):
+    #posts a random picture from the queried subreddit, defaults to hmmm
     try:
-        subreddit = await redditClient.subreddit("hmmm", fetch=True)
+        subName = subName.strip("r/")
+        subreddit = await redditClient.subreddit(subName, fetch=True)
         submission = await subreddit.random()
         url = submission.url
         if "/gallery/" in str(url): #grabs first image in a gallery
@@ -38,12 +39,12 @@ async def hmmmFunction(showEmbed : bool = False):
             url=image.img["src"]
 
         if submission.over_18:
-            return "`This r/hmmm image is marked as nsfw`\n" \
+            return f"`This r/{subName} image is marked as nsfw`\n" \
                 f"|| {url} ||"
         if showEmbed == False:
             return url
         reddit_embed = getBaseEmbed(submission)
-        reddit_embed.title = f"Random hmmm post"
+        reddit_embed.title = f"Random r/{subName} post"
         reddit_embed.set_image(url=url)
         return reddit_embed
     except Exception as e:
