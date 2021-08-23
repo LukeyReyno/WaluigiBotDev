@@ -64,11 +64,13 @@ cogs = [
     "commands.exec",
     "commands.component",
     "commands.stats",
+    "commands.twitter",
     #"slashcommands.sAnime",
     "slashcommands.sBasic",
     "slashcommands.sBotw",
     "slashcommands.sPokemon",
     "slashcommands.sStats",
+    "slashcommands.sTwitter",
     "slashcommands.sReddit"]
 for cog in cogs:
     bot.load_extension(cog)
