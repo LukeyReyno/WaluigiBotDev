@@ -1,6 +1,8 @@
-import typing
+import random
 import tweepy
 import json
+
+HASHTAG_SEARCH_LIMIT = 15
 
 # Initialize Credentials for Twitter
 class TwitterCredentials():
@@ -29,3 +31,13 @@ def fetchMostRecentTweetURL(user_search: str):
         return f"`Found User, @{foundUser.screen_name}, has no tweets on their timeline.`"
     tweet: tweepy.Status = tweetList[0]
     return f"https://twitter.com/{foundUser.screen_name}/status/{tweet.id}"
+
+def getTweetURLFromHashtag(hashtag: str):
+    hashtag = hashtag.strip("#")
+    try:
+        tweets = list(tweepy.Cursor(twitterClient.search, q=f"#{hashtag}", rpp=100).items(HASHTAG_SEARCH_LIMIT))
+        tweet: tweepy.Status = random.choice(tweets)
+    except:
+        return "`No Tweets Found`"
+
+    return f"https://twitter.com/{tweet.author.screen_name}/status/{tweet.id}"

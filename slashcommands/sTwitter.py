@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 from functions.constants import GUILDS
-from functions.twitterFuncs import fetchMostRecentTweetURL
+from functions.twitterFuncs import fetchMostRecentTweetURL, getTweetURLFromHashtag
 
 class sTwitter(commands.Cog):
 
@@ -29,6 +29,22 @@ class sTwitter(commands.Cog):
     async def twitter_search(self, ctx: SlashContext, username: str):
         await ctx.defer()
         results = fetchMostRecentTweetURL(username)
+        return await ctx.send(results)
+
+    @cog_ext.cog_subcommand(base="twitter", name="hashtag",
+        description="posts a link of found tweet with hashtag", 
+        guild_ids=GUILDS, 
+        options=[
+            create_option(
+                name="hashtag",
+                description="use a hashtag to find a tweet",
+                option_type=str,
+                required=True,
+            )
+        ])
+    async def twitter_hashtag(self, ctx: SlashContext, hashtag: str):
+        await ctx.defer()
+        results = getTweetURLFromHashtag(hashtag)
         return await ctx.send(results)
 
 def setup(client):
