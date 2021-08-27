@@ -11,6 +11,7 @@ from discord_slash import SlashCommand
 from discord_slash.context import ComponentContext, SlashContext
 from functions.dailyRequests import fullDailyRoutine
 from functions.constants import GAME_STATS_FILE, COMMAND_STATS_FILE
+from tests.basic_tests import basic_tests
 
 TOKENFile = open("WahToken.txt", "r")
 for line in TOKENFile:
@@ -49,6 +50,13 @@ async def on_ready():
         dump(WahDict, OUTFile, indent="  ")
 
     print('-------')
+
+    test = basic_tests(bot)
+    try:
+        await test.runTests()
+    except Exception as e:
+        print(f"Not all tests passed.\n{e}")
+
     await bot.change_presence(activity=discord.Game(name="Mario Kart 8 Deluxe | dwah help"))
 
 cogs = [
