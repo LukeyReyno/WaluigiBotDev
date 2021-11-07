@@ -218,19 +218,30 @@ async def dailyBotwMessage(WahDict, c: commands.Bot):
 @updateDailyJSON
 async def dailyAnimeMessage(WahDict, c: commands.Bot):
     statChannelList = getChannelList(ANIME)
-    anime_embed = randomAnime(ANIME_CREDENTIAL)
-    if (anime_embed == None):
-        return await print("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
-
-    prevDict[ANIME] = anime_embed
-
-    for chan_id in statChannelList:
-        channel = c.get_channel(chan_id)
+    try:
+        anime_embed = randomAnime(ANIME_CREDENTIAL)
+    except:
+        # Token Likely expired
+        ANIME_CREDENTIAL.reAuthorize()
+        print("MAL Token Regenerated and set as current Access Token")
         try:
-            await channel.send(embed=anime_embed)
+            anime_embed = randomAnime(ANIME_CREDENTIAL)
         except:
-            print(f"Error in Routine Message for {chan_id}")
-            WahDict[DAILY_DICT][ANIME].remove(chan_id)
+            print("Token Error Daily Anime not possible!\n")
+
+    if (anime_embed == None):
+        await print("`Anime Token Error: Bot Needs to Refresh access to MyAnimeList, this may take some time.`")
+
+    else:
+        prevDict[ANIME] = anime_embed
+
+        for chan_id in statChannelList:
+            channel = c.get_channel(chan_id)
+            try:
+                await channel.send(embed=anime_embed)
+            except:
+                print(f"Error in Routine Message for {chan_id}")
+                WahDict[DAILY_DICT][ANIME].remove(chan_id)
 
 def dumpPrevDict():
     with open("data/prevDaily.pickle", "wb") as pickleFile:
