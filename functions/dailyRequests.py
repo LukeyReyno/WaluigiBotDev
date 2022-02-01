@@ -227,6 +227,7 @@ async def dailyAnimeMessage(WahDict, c: commands.Bot):
         try:
             anime_embed = randomAnime(ANIME_CREDENTIAL)
         except:
+            anime_embed = None
             print("Token Error Daily Anime not possible!\n")
 
     if (anime_embed == None):
