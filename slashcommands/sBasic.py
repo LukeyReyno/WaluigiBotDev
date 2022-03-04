@@ -76,9 +76,9 @@ class sBasic(commands.Cog):
                 ]
             )
         ])
-    async def daily(self, ctx: SlashContext, dailyType : str = None):
+    async def daily(self, ctx: SlashContext, daily_type:str):
         await ctx.defer()
-        return await dailyCommandFunction(self.client, ctx, dailyType)
+        return await dailyCommandFunction(self.client, ctx, daily_type)
 
 def setup(client):
     client.add_cog(sBasic(client))
