@@ -24,6 +24,7 @@ HMMM = "hmmm"
 POKEMON = "pokemon"
 BOTW = "botw"
 ANIME = "anime"
+DAILY = "daily"
 INFO = "info"
 validArguments = [MUSIC, STATS, HMMM, POKEMON, BOTW, ANIME, INFO]
 
@@ -174,11 +175,11 @@ async def dailyStatMessage(WahDict, c: commands.Bot):
 
 @updateDailyJSON
 async def dailyHmmmMessage(WahDict, c: commands.Bot):
-    statChannelList = getChannelList(HMMM)
+    hmmmChannelList = getChannelList(HMMM)
     imgUrl = await imageFunction()
     prevDict[HMMM] = imgUrl
 
-    for chan_id in statChannelList:
+    for chan_id in hmmmChannelList:
         channel = c.get_channel(chan_id)
         try:
             await channel.send(imgUrl)
@@ -188,12 +189,12 @@ async def dailyHmmmMessage(WahDict, c: commands.Bot):
 
 @updateDailyJSON
 async def dailyPokemonMessage(WahDict, c: commands.Bot):
-    statChannelList = getChannelList(POKEMON)
+    pokemonChannelList = getChannelList(POKEMON)
     name_num = str(random.choice(range(1,899)))
     pokeEmbed = mainPokemonCommand(name_num)
     prevDict[POKEMON] = pokeEmbed
 
-    for chan_id in statChannelList:
+    for chan_id in pokemonChannelList:
         channel = c.get_channel(chan_id)
         try:
             await channel.send(embed=pokeEmbed)
@@ -203,11 +204,11 @@ async def dailyPokemonMessage(WahDict, c: commands.Bot):
 
 @updateDailyJSON
 async def dailyBotwMessage(WahDict, c: commands.Bot):
-    statChannelList = getChannelList(BOTW)
+    botwChannelList = getChannelList(BOTW)
     botwEmbed = botwFunction(None)
     prevDict[BOTW] = botwEmbed
 
-    for chan_id in statChannelList:
+    for chan_id in botwChannelList:
         channel = c.get_channel(chan_id)
         try:
             await channel.send(embed=botwEmbed)
@@ -217,7 +218,7 @@ async def dailyBotwMessage(WahDict, c: commands.Bot):
 
 @updateDailyJSON
 async def dailyAnimeMessage(WahDict, c: commands.Bot):
-    statChannelList = getChannelList(ANIME)
+    animeChannelList = getChannelList(ANIME)
     try:
         anime_embed = randomAnime(ANIME_CREDENTIAL)
     except:
@@ -236,13 +237,45 @@ async def dailyAnimeMessage(WahDict, c: commands.Bot):
     else:
         prevDict[ANIME] = anime_embed
 
-        for chan_id in statChannelList:
+        for chan_id in animeChannelList:
             channel = c.get_channel(chan_id)
             try:
                 await channel.send(embed=anime_embed)
             except:
                 print(f"Error in Routine Message for {chan_id}")
                 WahDict[DAILY_DICT][ANIME].remove(chan_id)
+                
+@updateDailyJSON
+async def dailyDailyMessage(WahDict, c: commands.Bot):
+    dailyChannelList = getChannelList(DAILY)
+    daily_embed = discord.Embed()
+    daily_embed.color = 0x7027C3
+    daily_embed.title = "Number of Channels with Daily Routines"
+    daily_embed.set_footer(text="Wah", icon_url="https://ih1.redbubble.net/image.15430162.9094/sticker,375x360.u2.png")
+
+    with open(DAILY_CHANNEL_LIST, "r") as INFile:
+        WahDict = load(INFile)
+
+    descript_string = "```"
+    total_dailies = 0
+    for key in WahDict[DAILY_DICT]:
+        num_dailies_in_key = len(WahDict[DAILY_DICT][key])
+        category_str = str(key).upper()+":"
+        descript_string += f"{category_str:15s}{num_dailies_in_key:8d}\n"
+        total_dailies += num_dailies_in_key
+    category_str = "TOTAL:"
+    descript_string += f"\n{category_str:15s}{total_dailies:8d}\n"
+    descript_string += "```"
+    daily_embed.description = descript_string
+    prevDict[DAILY] = daily_embed
+
+    for chan_id in dailyChannelList:
+        channel = c.get_channel(chan_id)
+        try:
+            await channel.send(embed=daily_embed)
+        except:
+            print(f"Error in Routine Message for {chan_id}")
+            WahDict[DAILY_DICT][DAILY].remove(chan_id)
 
 def dumpPrevDict():
     with open("data/prevDaily.pickle", "wb") as pickleFile:
@@ -255,4 +288,5 @@ async def fullDailyRoutine(c: commands.Bot):
     await dailyPokemonMessage(c)
     await dailyBotwMessage(c)
     await dailyAnimeMessage(c)
+    await dailyDailyMessage(c)
     dumpPrevDict()

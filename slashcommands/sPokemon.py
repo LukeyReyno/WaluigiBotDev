@@ -21,7 +21,7 @@ class sPokemon(commands.Cog):
         guild_ids=GUILDS, 
         options=[
             create_option(
-                name="name_number",
+                name="name_num",
                 description="Pokemon Name or Pokedex Number",
                 option_type=str,
                 required=False,
@@ -40,7 +40,7 @@ class sPokemon(commands.Cog):
         guild_ids=GUILDS, 
         options=[
             create_option(
-                name="name_number",
+                name="name_num",
                 description="Pokemon Name or Pokedex Number",
                 option_type=str,
                 required=False,

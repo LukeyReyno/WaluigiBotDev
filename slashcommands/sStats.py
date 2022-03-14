@@ -18,7 +18,7 @@ class sStats(commands.Cog):
         guild_ids=GUILDS, 
         options=[
             create_option(
-                name="mention",
+                name="user",
                 description="@User",
                 option_type=6,
                 required=True,
